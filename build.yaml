@@ -54,8 +54,6 @@
 ---
 include:
 
-
-
   ### SOFLEV2 SOFLEV1 SOFLEPLUS START ###
   # nice!oled sofle
   - board: nice_nano_v2
