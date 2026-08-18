@@ -10,6 +10,41 @@
 #include <dt-bindings/zmk/keys.h>
 
 / {
+    behaviors {
+        hmr: hmr {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMR";
+            bindings = <&kp>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <125>;
+            flavor = "balanced";
+        };
+
+        hmr_mo: hmr_mo {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMR_MO";
+            bindings = <&mo>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <175>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <75>;
+            flavor = "hold-preferred";
+        };
+        hms: homerow_mods_shift {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            flavor = "balanced";          
+            tapping-term-ms = <175>;      // shift는 더 짧게
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <100>; // 낮게 설정
+            
+            bindings = <&kp>, <&kp>;
+        };
+    };
     keymap {
         compatible = "zmk,keymap";
 
@@ -17,22 +52,40 @@
             display-name = "BAS";
             // ------------------------------------------------------------------------------------------------------------
             // |  `    |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   | BSPC  |
-            // |  ESC  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   | BSLH  |
-            // |  TAB  |  A  |  S  |  D   |  F   |  G   |                   |  H   |  J    |  K    |  L   |   ;   |   '   |
+            // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   | BSLH  |
+            // |  1/ESC|  A  |  S  |  D   |  F   |  G   |                   |  H   |  J    |  K    |  L   |   ;   |   '   |
             // | SHIFT |  Z  |  X  |  C   |  V   |  B   |  MUTE  |  |       |  N   |  M    |  ,    |  .   |   /   | SHIFT |
             //               | GUI | ALT  | CTRL | LOWER|  SPACE |  | RET   | RAISE| CTRL  | ALT   | GUI  |
 
             bindings = <
-&kp GRAVE  &kp N1  &kp N2    &kp N3    &kp N4     &kp N5                                   &kp N6  &kp N7     &kp N8     &kp N9    &kp N0    &kp BSPC
-&kp ESC    &kp Q   &kp W     &kp E     &kp R      &kp T                                    &kp Y   &kp U      &kp I      &kp O     &kp P     &kp BSLH
-&kp TAB    &kp A   &kp S     &kp D     &kp F      &kp G                                    &kp H   &kp J      &kp K      &kp L     &kp SEMI  &kp SQT
-&kp LSHFT  &kp Z   &kp X     &kp C     &kp V      &kp B   &kp C_MUTE    &kp C_MUTE  &kp N   &kp M      &kp COMMA  &kp DOT   &kp FSLH  &kp RSHFT
-                   &kp LCTRL &kp LGUI  &kp LALT   &mo 1   &kp SPACE     &kp RET     &mo 2   &kp RCTRL  &kp RALT   &kp RGUI
+&kp GRAVE          &kp N1  &kp N2    &kp N3    &kp N4     &kp N5                                   &kp N6  &kp N7     &kp N8     &kp N9    &kp N0    &kp BSPC
+&kp TAB            &kp Q   &kp W     &kp E     &kp R      &kp T                                    &kp Y   &kp U      &kp I      &kp O     &kp P     &kp BSLH
+&kp hmr_mo 1 ESC   &kp A   &kp S     &kp D     &kp F      &kp G                                    &kp H   &kp J      &kp K      &kp L     &kp SEMI  &kp SQT
+&kp LSHFT          &kp Z   &kp X     &kp C     &kp V      &kp B   &kp C_MUTE    &kp C_MUTE  &kp N   &kp M      &kp COMMA  &kp DOT   &kp FSLH  &kp RSHFT
+                           &kp LCTRL &kp LGUI  &kp LALT   &mo 1   &kp SPACE     &kp RET     &mo 2   &kp RCTRL  &kp RALT   &kp RGUI
             >;
 
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
+        raise_layer {
+            display-name = "RAI";
+            // ------------------------------------------------------------------------------------------------------------
+            // |BTCLR| BT1  | BT2  |  BT3  |  BT4  |  BT5 |                |      |      |       |      |       |       |
+            // |     |      |      |       |       |      |                |      |      |       |      |       |       |
+            // |     |      |      |       |       |      |                |  <-  |   v  |   ^   |  ->  |  PG_UP|       |
+            // |     |LA(Z) |      |LA(C)  | LA(V) |      |      |  |      | DEL  |      |       |      |PG_DOWN|       |
+            //              |      |       |       |      |      |  |      |      |      |       |      |
 
+            bindings = <
+&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4                    &trans     &trans    &trans  &trans     &trans          &trans
+&trans      &trans        &trans        &trans        &trans        &trans                          &trans     &trans    &trans  &trans     &trans          &trans
+&trans      &trans        &trans        &trans        &trans        &trans                          &kp LEFT   &kp DOWN  &kp UP  &kp RIGHT  &kp PAGE_UP     &trans
+&trans      &kp LA(Z)     &trans        &kp LA(C)     &kp LA(V)     &trans        &trans    &trans  &kp DEL    &trans    &trans  &trans     &kp PAGE_DOWN   &trans
+                          &trans        &trans        &trans        &trans        &trans    &trans  &trans     &trans    &trans  &trans
+            >;
+
+            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+        };
         lower_layer {
             display-name = "LOW";
             // ------------------------------------------------------------------------------------------------------------
@@ -53,24 +106,6 @@
             sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
 
-        raise_layer {
-            display-name = "RAI";
-            // ------------------------------------------------------------------------------------------------------------
-            // |BTCLR| BT1  | BT2  |  BT3  |  BT4  |  BT5 |                |      |      |       |      |       |       |
-            // |     | INS  | PSCR | GUI   |       |      |                | PGUP |      |       |      |       |       |
-            // |     | ALT  | CTRL | SHIFT |       | CAPS |                |  <-  |   v  |   ^   |  ->  |  DEL  | BKSPC |
-            // |     | UNDO | CUT  | COPY  | PASTE |      |      |  |      |      |      |       |      |       |       |
-            //              |      |       |       |      |      |  |      |      |      |       |      |
-
-            bindings = <
-&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4                    &trans     &trans    &trans  &trans     &trans   &trans
-&trans      &kp INS       &kp PSCRN     &kp K_CMENU   &trans        &trans                          &kp PG_UP  &trans    &trans  &trans     &kp N0   &trans
-&trans      &kp LALT      &kp LCTRL     &kp LSHFT     &trans        &kp CLCK                        &kp LEFT   &kp DOWN  &kp UP  &kp RIGHT  &kp DEL  &kp BSPC
-&trans      &kp K_UNDO    &kp K_CUT     &kp K_COPY    &kp K_PASTE   &trans        &trans    &trans  &trans     &trans    &trans  &trans     &trans   &trans
-                          &trans        &trans        &trans        &trans        &trans    &trans  &trans     &trans    &trans  &trans
-            >;
-
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
-        };
+        
     };
 };
