@@ -32,10 +32,10 @@ layers:
   - {t: F, h: LEFT SHIFT}
   - G
   - H
-  - J
-  - K
-  - L
-  - ;
+  - {t: J, h: LEFT SHIFT}
+  - {t: K, h: LEFT ALT}
+  - {t: L, h: LEFT GUI}
+  - {t: ;, h: LEFT CONTROL}
   - ''''
   - LEFT SHIFT
   - Z
@@ -50,7 +50,7 @@ layers:
   - ','
   - .
   - /
-  - $$mdi:apple-keyboard-shift$$
+  - '`'
   - $$mdi:apple-keyboard-control$$
   - $$mdi:apple-keyboard-command$$
   - $$mdi:apple-keyboard-option$$
@@ -58,7 +58,7 @@ layers:
   - ␣
   - ⏎
   - SYM
-  - $$mdi:apple-keyboard-control$$
+  - Ctl+␣
   - $$mdi:apple-keyboard-option$$
   - $$mdi:apple-keyboard-command$$
   NAV:
