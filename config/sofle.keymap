@@ -24,6 +24,20 @@
 //hsd
 / {
     behaviors {
+        /* Tap: Sticky Shift, Hold: Layer Mo */
+        mo_sk: momentary_sticky_layer {
+            compatible = "zmk,behavior-hold-tap";
+            label = "MO_SK";
+            #binding-cells = <2>;
+            
+            /* 엄지 키에 적합한 flavor (빠르게 칠 때 레이어 오발동 방지) */
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+
+            /* 첫 번째 파라미터는 Hold(&mo), 두 번째 파라미터는 Tap(&sk) */
+            bindings = <&mo>, <&sk>;
+        };
         hmr_l: hmr_l {
             compatible = "zmk,behavior-hold-tap";
             label = "LEFT_HMR";
