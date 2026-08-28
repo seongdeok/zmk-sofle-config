@@ -34,7 +34,7 @@
             quick-tap-ms = <175>;
             require-prior-idle-ms = <125>;
             flavor = "balanced";
-            hold-trigger-on-release;
+            //hold-trigger-on-release;
             hold-trigger-key-positions = <RIGHT_KEYS>;
         };
         hmr_r: hmr_r {
@@ -47,7 +47,7 @@
             quick-tap-ms = <175>;
             require-prior-idle-ms = <125>;
             flavor = "balanced";
-            hold-trigger-on-release;
+            //hold-trigger-on-release;
             hold-trigger-key-positions = <LEFT_KEYS>;
         };
 
