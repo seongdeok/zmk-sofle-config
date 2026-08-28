@@ -35,7 +35,7 @@
             require-prior-idle-ms = <125>;
             flavor = "balanced";
             //hold-trigger-on-release;
-            hold-trigger-key-positions = <RIGHT_KEYS>;
+            //hold-trigger-key-positions = <RIGHT_KEYS>;
         };
         hmr_r: hmr_r {
             compatible = "zmk,behavior-hold-tap";
@@ -48,7 +48,7 @@
             require-prior-idle-ms = <125>;
             flavor = "balanced";
             //hold-trigger-on-release;
-            hold-trigger-key-positions = <LEFT_KEYS>;
+            //hold-trigger-key-positions = <LEFT_KEYS>;
         };
 
         hmr: hmr {
