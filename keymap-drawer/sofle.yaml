@@ -108,7 +108,7 @@ layers:
   - {t: ▽, type: trans}
   - Home
   - PAGE UP
-  - '&PAGE_DOWN'
+  - PAGE DOWN
   - End
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
