@@ -50,7 +50,7 @@
             #binding-cells = <2>;
             tapping-term-ms = <220>;
             quick-tap-ms = <175>;
-            require-prior-idle-ms = <50>;
+            require-prior-idle-ms = <100>;
             flavor = "balanced";
             hold-trigger-key-positions = <RIGHT_KEYS>;
         };
@@ -62,7 +62,7 @@
             #binding-cells = <2>;
             tapping-term-ms = <220>;
             quick-tap-ms = <175>;
-            require-prior-idle-ms = <50>;
+            require-prior-idle-ms = <100>;
             flavor = "balanced";
             hold-trigger-key-positions = <LEFT_KEYS>;
         };
