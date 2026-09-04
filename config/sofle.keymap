@@ -22,6 +22,9 @@
     30 31 32 33 34 35 \
     43 44 45 46 47 48 49 \
     55 56 57 58 59
+#define LEFT_THUMBS 50 51 52 53 54
+#define RIGHT_THUMBS 55 56 57 58 59
+
 //hsd
 / {
     behaviors {
@@ -87,15 +90,30 @@
             require-prior-idle-ms = <75>;
             flavor = "hold-preferred";
         };
-        hms: homerow_mods_shift {
+        /* F 키 전용 Shift: 반대쪽 손 + 왼손 엄지 전체(50~54)를 트리거로 인정 */
+        hms_l: homerow_mods_shift_left {
             compatible = "zmk,behavior-hold-tap";
-            #binding-cells = <2>;
-            flavor = "balanced";          
-            tapping-term-ms = <175>;      // shift는 더 짧게
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <100>; // 낮게 설정
-            
+            label = "HMS_L";
             bindings = <&kp>, <&kp>;
+            #binding-cells = <2>;
+            tapping-term-ms = <180>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <50>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <RIGHT_KEYS LEFT_THUMBS>;
+        };
+
+        /* J 키 전용 Shift: 반대쪽 손 + 오른손 엄지 전체(55~59)를 트리거로 인정 */
+        hms_r: homerow_mods_shift_right {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMS_R";
+            bindings = <&kp>, <&kp>;
+            #binding-cells = <2>;
+            tapping-term-ms = <180>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <50>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <LEFT_KEYS RIGHT_THUMBS>;
         };
         /* 엄지 전용 Dual-Role 키 (Tap: 일반 글쇠, Hold: 레이어 전환) */
         lt_th: thumb_layer_tap {
@@ -123,7 +141,7 @@
             bindings = <
 &kp GRAVE          &kp N1  &kp N2    &kp N3    &kp N4     &kp N5                                          &kp N6  &kp N7     &kp N8     &kp N9    &kp N0    &kp BSPC
 &kp TAB            &kp Q   &kp W     &kp E     &kp R      &kp T                                           &kp Y   &kp U      &kp I      &kp O     &kp P     &kp BSLH
-&hmr_mo 1 ESC   &hmr_l LCTRL A  &hmr_l LEFT_WIN S  &hmr_l LEFT_ALT D  &hmr_l LEFT_SHIFT F                 &kp G           &kp H   &hmr_r LEFT_SHIFT J  &hmr_r LEFT_ALT K  &hmr_r LEFT_GUI L  &hmr_r LEFT_CONTROL SEMI  &kp SQT
+&hmr_mo 1 ESC   &hmr_l LCTRL A  &hmr_l LEFT_WIN S  &hmr_l LEFT_ALT D &hms_l LEFT_SHIFT F &kp G            &kp H   &hms_r LEFT_SHIFT J  &hmr_r LEFT_ALT K  &hmr_r LEFT_GUI L  &hmr_r LEFT_CONTROL SEMI  &kp SQT
 &kp LEFT_SHIFT     &kp Z   &kp X     &kp C     &kp V      &kp B   &kp C_MUTE                &kp C_MUTE    &kp N   &kp M      &kp COMMA  &kp DOT   &kp FSLH  &kp GRAVE
                            &kp LCTRL &kp LGUI  &lt_th 1 ESC &lt_th 3 TAB &lt_th 4 SPACE     &lt_th 5 RET  &lt_th 2 BSPC &lt_th 6 DEL &kp RALT   &kp RGUI
             >;
