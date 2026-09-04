@@ -87,16 +87,16 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {type: held}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
+  - $$mdi:apple-keyboard-control$$
+  - $$mdi:apple-keyboard-command$$
+  - $$mdi:apple-keyboard-option$$
+  - LEFT SHIFT
   - {t: ▽, type: trans}
   - ←
   - ↓
   - ↑
   - →
-  - PAGE UP
+  - Caps Lock
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - Alt+Z
@@ -106,11 +106,11 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
-  - ⌦
+  - Home
+  - PAGE UP
+  - '&PAGE_DOWN'
+  - End
   - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
-  - PAGE DOWN
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
