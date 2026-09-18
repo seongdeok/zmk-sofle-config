@@ -54,7 +54,7 @@ layers:
   - $$mdi:apple-keyboard-control$$
   - $$mdi:apple-keyboard-command$$
   - {t: Esc, h: NAV}
-  - {t: ↹, h: NUM}
+  - {t: Esc, h: NUM}
   - {t: ␣, h: MSE}
   - {t: ⏎, h: FUN}
   - {t: '$$mdi:backspace-outline$$', h: SYM}
