@@ -53,7 +53,7 @@ layers:
   - '`'
   - $$mdi:apple-keyboard-control$$
   - $$mdi:apple-keyboard-command$$
-  - {t: Esc, h: NAV}
+  - B
   - A
   - {t: ␣, h: MSE}
   - {t: ⏎, h: FUN}
