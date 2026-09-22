@@ -53,8 +53,8 @@ layers:
   - '`'
   - $$mdi:apple-keyboard-control$$
   - $$mdi:apple-keyboard-command$$
-  - B
-  - A
+  - {t: Esc, h: NAV}
+  - {t: ↹, h: NUM}
   - {t: ␣, h: MSE}
   - {t: ⏎, h: FUN}
   - {t: '$$mdi:backspace-outline$$', h: SYM}
@@ -237,7 +237,7 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
-  - {t: ▽, type: trans}
+  - {type: held}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
