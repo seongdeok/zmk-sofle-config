@@ -48,8 +48,8 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            quick-tap-ms = <190>;
+            tapping-term-ms = <220>;
+            quick-tap-ms = <175>;
             require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <RIGHT_KEYS>;
@@ -60,8 +60,8 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <200>;
-            quick-tap-ms = <190>;
+            tapping-term-ms = <220>;
+            quick-tap-ms = <175>;
             require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <LEFT_KEYS>;
@@ -197,8 +197,8 @@
 
             bindings = <
 &trans     &trans     &trans     &trans       &trans    &trans                       &none      &trans    &trans           &trans     &trans    &trans
-&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N7    &kp N8           &kp N9     &none    &trans
-&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N4    &kp N5           &kp N6     &none    &trans
+&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N7    &kp N8           &kp N9     &trans    &trans
+&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N4    &kp N5           &kp N6     &trans    &trans
 &trans     &trans     &trans     &trans       &trans    &trans     &trans    &trans  &kp N0     &kp N1    &kp N2           &kp N3     &kp DOT   &trans
                       &trans     &trans       &trans    &trans     &trans    &trans  &trans     &trans    &trans           &trans
             >;
@@ -253,7 +253,7 @@
         // ------------------------------------------------------------------------------------------------------------
         media_layer {
             display-name = "MED";
-            // ---------------------------------------------------------------- -------------------------------------------
+            // ------------------------------------------------------------------------------------------------------------
             // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |
             // | TRANS   | BT1     | BT2     | BT3     | BT4     | BT_CLR  |         |         |         |         | TRANS   | VOL_DN  | VOL_UP  | MUTE    | TRANS   | TRANS   |         
             // | TRANS   | LCTRL   | LGUI    | LALT    | LSHIFT  | TRANS   |         |         |         |         | C_PREV  | C_PP    | C_PLAY  | C_NEXT  | TRANS   | TRANS   |         
