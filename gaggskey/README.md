@@ -50,3 +50,15 @@ npx tauri build --no-bundle      # 실행파일만 (target/release/gaggskey-app)
 > 찾습니다. 실행용 바이너리는 반드시 `tauri build`로 만드세요.
 
 트레이에 상주합니다. 창을 닫으면 트레이로 숨고, 트레이 메뉴의 "종료"로 끝납니다.
+
+### Linux 설치
+
+```bash
+host/install-linux.sh               # 빌드 + ~/.local 설치 + 로그인 시 자동 실행 + udev 룰
+host/install-linux.sh --no-build    # 이미 빌드된 target/release 바이너리만 설치
+host/install-linux.sh --no-autostart
+host/install-linux.sh --uninstall
+```
+
+설치 위치: `~/.local/bin/{gaggskey-app,gkctl}`, `~/.local/share/applications/gaggskey.desktop`,
+`~/.config/autostart/gaggskey.desktop`, `/etc/udev/rules.d/70-gaggskey.rules`.
