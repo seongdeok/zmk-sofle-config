@@ -24,6 +24,8 @@ pub struct Snapshot {
     pub hello: Option<Hello>,
     pub layer_names: Vec<String>,
     pub state: Option<State>,
+    /// Keymap with labels; filled shortly after connecting.
+    pub keymap: Option<gaggskey_proto::keymap::Keymap>,
     /// Last connection error while disconnected.
     pub error: Option<String>,
 }
@@ -111,9 +113,15 @@ fn session(rx: &Receiver<(Command, Reply)>, publish: Publish) -> Result<(), Stri
             hello: Some(hello.clone()),
             layer_names: names.clone(),
             state: Some(state.clone()),
+            keymap: None,
             error: None,
         };
     });
+    match c.keymap(&names) {
+        Ok(km) => publish(&|s| s.keymap = km.clone()),
+        Err(gaggskey_link::Error::Io(e)) => return Err(e),
+        Err(e) => eprintln!("keymap fetch failed: {e}"),
+    }
 
     loop {
         loop {

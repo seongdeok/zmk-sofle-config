@@ -26,12 +26,30 @@ export interface State {
   ble_profile_connected: boolean;
 }
 
+export type KeyKind =
+  | "key" | "mod" | "layer" | "trans" | "none" | "bt" | "out" | "mouse" | "media" | "system" | "other";
+
+export interface KeyLabel {
+  tap: string;
+  hold: string | null;
+  kind: KeyKind;
+  raw: string;
+}
+
+export interface KeyGeom { w: number; h: number; x: number; y: number; r: number; rx: number; ry: number }
+
+export interface Keymap {
+  keys: KeyGeom[];
+  layers: KeyLabel[][];
+}
+
 export interface Snapshot {
   connected: boolean;
   via: string | null;
   hello: Hello | null;
   layer_names: string[];
   state: State | null;
+  keymap: Keymap | null;
   error: string | null;
 }
 

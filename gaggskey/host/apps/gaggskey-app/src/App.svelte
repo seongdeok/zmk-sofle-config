@@ -3,6 +3,7 @@
   import { listen } from "@tauri-apps/api/event";
   import { onMount } from "svelte";
   import type { Snapshot, UiCommand } from "./types";
+  import KeymapView from "./KeymapView.svelte";
 
   let snap = $state<Snapshot | null>(null);
   let error = $state<string | null>(null);
@@ -94,6 +95,15 @@
           </button>
         {/each}
       </div>
+    </section>
+
+    <section>
+      <h2>키맵</h2>
+      {#if snap.keymap}
+        <KeymapView keymap={snap.keymap} {names} current={st.layer} active={st.layers_active} />
+      {:else}
+        <p class="muted small">키맵 불러오는 중… (구버전 펌웨어면 표시되지 않음)</p>
+      {/if}
     </section>
 
     <section>

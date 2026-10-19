@@ -24,6 +24,8 @@ enum Cmd {
     Watch,
     /// List layer ids and names
     Layers,
+    /// Dump keymap legends (all layers, or one)
+    Keymap { layer: Option<u8> },
     /// Switch to layer (layer_to)
     Layer { id: u8 },
     /// Toggle a layer
@@ -105,6 +107,28 @@ fn main() -> Result<()> {
             emit(json, &names, || {
                 names.iter().enumerate().map(|(i, n)| format!("{i}: {n}")).collect::<Vec<_>>().join("\n")
             });
+            return Ok(());
+        }
+        Cmd::Keymap { layer } => {
+            let h = c.hello()?;
+            let names = c.layer_names(h.layers);
+            let t = std::time::Instant::now();
+            let km = c.keymap(&names)?.ok_or_else(|| anyhow::anyhow!("firmware has no keymap introspection"))?;
+            if json {
+                println!("{}", serde_json::to_string(&km)?);
+                return Ok(());
+            }
+            eprintln!("{} keys, {} layers in {:?}", km.keys.len(), km.layers.len(), t.elapsed());
+            for (i, row) in km.layers.iter().enumerate() {
+                if layer.is_some_and(|l| l as usize != i) {
+                    continue;
+                }
+                println!("== {i} {}", names.get(i).map(String::as_str).unwrap_or(""));
+                for (pos, k) in row.iter().enumerate() {
+                    let hold = k.hold.as_deref().map(|h| format!(" / {h}")).unwrap_or_default();
+                    println!("  {pos:2} {:<10}{:<12} {}", k.tap, hold, k.raw);
+                }
+            }
             return Ok(());
         }
         Cmd::Watch => {

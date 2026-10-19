@@ -56,6 +56,14 @@ enum gk_cmd {
     GK_CMD_OUT_SELECT = 0x20, /* [0=USB, 1=BLE] */
     GK_CMD_OUT_TOGGLE = 0x21,
 
+    /* keymap introspection (read-only) */
+    GK_CMD_KEYMAP_INFO = 0x30,    /* -> [key_count][layer_count][behavior_count][layout_keys] */
+    GK_CMD_BEHAVIOR_NAME = 0x31,  /* [idx] -> behavior device name (no NUL) */
+    GK_CMD_KEYMAP_GET = 0x32,     /* [layer_id][start_pos] -> [n] n x ([bidx][uvar p1][uvar p2])
+                                   * bidx 0xFF = unknown behavior. uvar = LEB128 u32. */
+    GK_CMD_LAYOUT_GET = 0x33,     /* [pos] -> int16 w,h,x,y,r,rx,ry (1/100 key units,
+                                   * r in 1/100 degree) of the selected physical layout */
+
     GK_CMD_RESET = 0x7E,      /* [0xB0][0x07] guard bytes */
     GK_CMD_BOOTLOADER = 0x7F, /* [0xB0][0x07] guard bytes */
 };

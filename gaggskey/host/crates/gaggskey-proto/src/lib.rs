@@ -6,6 +6,8 @@
 
 use serde::Serialize;
 
+pub mod keymap;
+
 pub const FRAME_SIZE: usize = 32;
 pub const HEADER_SIZE: usize = 5;
 pub const PAYLOAD_MAX: usize = FRAME_SIZE - HEADER_SIZE;
@@ -64,6 +66,11 @@ pub enum Command {
     BtClear,
     OutSelect(Output),
     OutToggle,
+    KeymapInfo,
+    BehaviorName(u8),
+    /// (layer, start position)
+    KeymapGet(u8, u8),
+    LayoutGet(u8),
     Reset,
     Bootloader,
 }
@@ -83,6 +90,10 @@ impl Command {
             BtClear => 0x13,
             OutSelect(_) => 0x20,
             OutToggle => 0x21,
+            KeymapInfo => 0x30,
+            BehaviorName(_) => 0x31,
+            KeymapGet(..) => 0x32,
+            LayoutGet(_) => 0x33,
             Reset => 0x7E,
             Bootloader => 0x7F,
         }
@@ -92,10 +103,11 @@ impl Command {
         use Command::*;
         match *self {
             LayerTo(l) | LayerOn(l) | LayerOff(l) | LayerToggle(l) | LayerName(l) => vec![l],
-            BtSelect(p) => vec![p],
+            BtSelect(p) | BehaviorName(p) | LayoutGet(p) => vec![p],
+            KeymapGet(l, s) => vec![l, s],
             OutSelect(o) => vec![o as u8],
             Reset | Bootloader => GUARD.to_vec(),
-            BtNext | BtPrev | BtClear | OutToggle => vec![],
+            BtNext | BtPrev | BtClear | OutToggle | KeymapInfo => vec![],
         }
     }
 

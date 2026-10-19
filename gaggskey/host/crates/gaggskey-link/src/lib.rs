@@ -146,6 +146,49 @@ impl Client {
             .collect()
     }
 
+    /// Download the full keymap (physical layout + labelled bindings).
+    /// Returns `Ok(None)` if the firmware predates keymap introspection.
+    pub fn keymap(&mut self, layer_names: &[String]) -> Result<Option<proto::keymap::Keymap>> {
+        use proto::keymap::{label, parse_bindings, KeyGeom, Keymap, KeymapInfo};
+        let info = match self.command(Command::KeymapInfo) {
+            Ok(d) => KeymapInfo::parse(&d)?,
+            Err(Error::Command(_)) => return Ok(None),
+            Err(e) => return Err(e),
+        };
+        let mut keys = Vec::with_capacity(info.layout_keys as usize);
+        for pos in 0..info.layout_keys {
+            keys.push(KeyGeom::parse(&self.command(Command::LayoutGet(pos))?)?);
+        }
+        let mut names: Vec<Option<String>> = vec![None; info.behaviors as usize];
+        let mut layers = Vec::with_capacity(info.layers as usize);
+        for layer in 0..info.layers {
+            let mut raw = Vec::with_capacity(info.keys as usize);
+            while raw.len() < info.keys as usize {
+                let chunk = parse_bindings(&self.command(Command::KeymapGet(layer, raw.len() as u8))?)?;
+                if chunk.is_empty() {
+                    break;
+                }
+                raw.extend(chunk);
+            }
+            let mut row = Vec::with_capacity(raw.len());
+            for b in raw {
+                let name = match names.get_mut(b.behavior as usize) {
+                    Some(slot) => {
+                        if slot.is_none() {
+                            let d = self.command(Command::BehaviorName(b.behavior))?;
+                            *slot = Some(String::from_utf8_lossy(&d).into_owned());
+                        }
+                        slot.clone().unwrap()
+                    }
+                    None => "?".into(),
+                };
+                row.push(label(&name, b.param1, b.param2, layer_names));
+            }
+            layers.push(row);
+        }
+        Ok(Some(Keymap { keys, layers }))
+    }
+
     /// Block until the next unsolicited state push (`timeout` None = forever).
     pub fn next_push(&mut self, timeout: Option<Duration>) -> Result<Option<State>> {
         if let Some(s) = self.pending_pushes.pop_front() {

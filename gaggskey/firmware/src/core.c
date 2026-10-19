@@ -18,6 +18,7 @@
 
 #include <zmk/event_manager.h>
 #include <zmk/keymap.h>
+#include <zmk/matrix.h>
 #include <zmk/endpoints.h>
 #include <zmk/activity.h>
 #include <zmk/usb.h>
@@ -47,6 +48,9 @@
 #if IS_ENABLED(CONFIG_ZMK_USB)
 #include <zmk/events/usb_conn_state_changed.h>
 #endif
+
+#include <drivers/behavior.h>
+#include <zmk/physical_layouts.h>
 
 #include "gk_internal.h"
 
@@ -221,6 +225,86 @@ static bool guard_ok(const uint8_t *a, uint8_t n) {
 
 static bool layer_ok(uint8_t id) { return id < ZMK_KEYMAP_LAYERS_LEN; }
 
+/* ------------------------------------------------------ keymap introspection */
+
+static uint8_t behavior_count(void) {
+    int n;
+    STRUCT_SECTION_COUNT(zmk_behavior_ref, &n);
+    return n > 0xFE ? 0xFE : (uint8_t)n;
+}
+
+static uint8_t behavior_index(const char *dev_name) {
+    uint8_t i = 0;
+    if (!dev_name) {
+        return 0xFF;
+    }
+    STRUCT_SECTION_FOREACH(zmk_behavior_ref, ref) {
+        if (i >= 0xFE) {
+            break;
+        }
+        if (ref->device && strcmp(ref->device->name, dev_name) == 0) {
+            return i;
+        }
+        i++;
+    }
+    return 0xFF;
+}
+
+static const char *behavior_name_at(uint8_t idx) {
+    uint8_t i = 0;
+    STRUCT_SECTION_FOREACH(zmk_behavior_ref, ref) {
+        if (i++ == idx) {
+            return ref->device ? ref->device->name : "";
+        }
+    }
+    return NULL;
+}
+
+static size_t put_uvar(uint8_t *out, uint32_t v) {
+    size_t n = 0;
+    do {
+        uint8_t b = v & 0x7F;
+        v >>= 7;
+        out[n++] = b | (v ? 0x80 : 0);
+    } while (v);
+    return n;
+}
+
+static const struct zmk_physical_layout *selected_layout(void) {
+    const struct zmk_physical_layout *const *list;
+    size_t n = zmk_physical_layouts_get_list(&list);
+    int sel = zmk_physical_layouts_get_selected();
+    if (n == 0) {
+        return NULL;
+    }
+    return list[(sel >= 0 && (size_t)sel < n) ? sel : 0];
+}
+
+/* returns bytes written into out (max GK_PAYLOAD_MAX - 2) */
+static size_t keymap_get(uint8_t layer, uint8_t start, uint8_t *out) {
+    const size_t room = GK_PAYLOAD_MAX - 2;
+    size_t len = 1;
+    uint8_t cnt = 0;
+
+    for (uint32_t pos = start; pos < ZMK_KEYMAP_LEN; pos++) {
+        const struct zmk_behavior_binding *b = zmk_keymap_get_layer_binding_at_idx(layer, pos);
+        uint8_t tmp[11];
+        size_t t = 0;
+
+        tmp[t++] = b ? behavior_index(b->behavior_dev) : 0xFF;
+        t += put_uvar(&tmp[t], b ? b->param1 : 0);
+        t += put_uvar(&tmp[t], b ? b->param2 : 0);
+        if (len + t > room) {
+            break;
+        }
+        memcpy(&out[len], tmp, t);
+        len += t;
+        cnt++;
+    }
+    out[0] = cnt;
+    return len;
+}
+
 static void handle_cmd(enum gk_src src, uint8_t seq, const uint8_t *p, uint8_t n) {
     if (n < 1) {
         send_error(src, seq, -EINVAL);
@@ -255,6 +339,52 @@ static void handle_cmd(enum gk_src src, uint8_t seq, const uint8_t *p, uint8_t n
             name = "";
         }
         send_ack(src, seq, cmd, 0, name, strnlen(name, GK_PAYLOAD_MAX - 2));
+        return;
+    }
+
+    case GK_CMD_KEYMAP_INFO: {
+        const struct zmk_physical_layout *pl = selected_layout();
+        uint8_t d[4] = {ZMK_KEYMAP_LEN, ZMK_KEYMAP_LAYERS_LEN, behavior_count(),
+                        pl ? MIN(pl->keys_len, 0xFF) : 0};
+        send_ack(src, seq, cmd, 0, d, sizeof(d));
+        return;
+    }
+
+    case GK_CMD_BEHAVIOR_NAME: {
+        const char *name = n < 2 ? NULL : behavior_name_at(p[1]);
+        if (!name) {
+            rc = -EINVAL;
+            break;
+        }
+        send_ack(src, seq, cmd, 0, name, strnlen(name, GK_PAYLOAD_MAX - 2));
+        return;
+    }
+
+    case GK_CMD_KEYMAP_GET: {
+        uint8_t d[GK_PAYLOAD_MAX];
+        if (n < 3 || !layer_ok(p[1]) || p[2] >= ZMK_KEYMAP_LEN) {
+            rc = -EINVAL;
+            break;
+        }
+        size_t len = keymap_get(p[1], p[2], d);
+        send_ack(src, seq, cmd, 0, d, len);
+        return;
+    }
+
+    case GK_CMD_LAYOUT_GET: {
+        const struct zmk_physical_layout *pl = selected_layout();
+        if (n < 2 || !pl || p[1] >= pl->keys_len) {
+            rc = -EINVAL;
+            break;
+        }
+        const struct zmk_key_physical_attrs *k = &pl->keys[p[1]];
+        int16_t d[7] = {k->width, k->height, k->x, k->y, 0, 0, 0};
+#if IS_ENABLED(CONFIG_ZMK_PHYSICAL_LAYOUT_KEY_ROTATION)
+        d[4] = k->r;
+        d[5] = k->rx;
+        d[6] = k->ry;
+#endif
+        send_ack(src, seq, cmd, 0, d, sizeof(d));
         return;
     }
 
