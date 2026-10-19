@@ -313,8 +313,11 @@ fn mouse_buttons(b: u32) -> String {
     if v.is_empty() { format!("MB{b}") } else { v.join("+") }
 }
 
-fn mouse_dir(v: u32) -> String {
-    let y = (v & 0xFFFF) as u16 as i16;
+fn mouse_dir(v: u32, scroll: bool) -> String {
+    let mut y = (v & 0xFFFF) as u16 as i16;
+    if scroll {
+        y = -y; // ZMK scroll: +y is up
+    }
     let x = (v >> 16) as u16 as i16;
     match (x.signum(), y.signum()) {
         (0, -1) => "↑",
@@ -372,8 +375,8 @@ pub fn label(behavior: &str, p1: u32, p2: u32, layers: &[String]) -> KeyLabel {
             KeyKind::Out,
         ),
         "mouse_key_press" => lbl(mouse_buttons(p1), None, KeyKind::Mouse),
-        "mouse_move" => lbl(format!("🖱{}", mouse_dir(p1)), None, KeyKind::Mouse),
-        "mouse_scroll" => lbl(format!("⇳{}", mouse_dir(p1)), Some("scroll".into()), KeyKind::Mouse),
+        "mouse_move" => lbl(format!("🖱{}", mouse_dir(p1, false)), None, KeyKind::Mouse),
+        "mouse_scroll" => lbl(format!("⇳{}", mouse_dir(p1, true)), Some("scroll".into()), KeyKind::Mouse),
         "caps_word" => lbl("CapsW", None, KeyKind::Mod),
         "key_repeat" => lbl("Repeat", None, KeyKind::Key),
         "grave_escape" => lbl("Esc", Some("`".into()), KeyKind::Key),
