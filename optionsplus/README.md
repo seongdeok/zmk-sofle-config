@@ -11,8 +11,11 @@ optionsplus/
 │  ├─ src/core.c | transport_usb.c | transport_ble.c
 │  ├─ Kconfig, CMakeLists.txt, zephyr/module.yml
 │  └─ optionsplus_central.conf
-└─ host/
-   ├─ sofctl/sofctl.py           # USB hidraw CLI (stdlib only)
+└─ host/                        # cargo workspace (Linux / macOS / Windows)
+   ├─ crates/sofle-proto/        # proto.h 미러 + 실기기 캡처 테스트 벡터
+   ├─ crates/sofle-link/         # Transport(USB hidapi, BLE btleplug) + Client
+   ├─ apps/sofctl/               # Rust CLI (USB 우선, 없으면 BLE)
+   ├─ sofctl/sofctl.py           # 초기 프로토타입 (USB hidraw, stdlib)
    └─ udev/70-sofle-optionsplus.rules
 ```
 
@@ -25,9 +28,10 @@ optionsplus/
 sudo cp optionsplus/host/udev/70-sofle-optionsplus.rules /etc/udev/rules.d/
 sudo udevadm control --reload && sudo udevadm trigger
 
-./optionsplus/host/sofctl/sofctl.py hello
-./optionsplus/host/sofctl/sofctl.py watch      # 레이어 바꾸면 실시간 출력
-./optionsplus/host/sofctl/sofctl.py layer 1
-./optionsplus/host/sofctl/sofctl.py bt 2
-./optionsplus/host/sofctl/sofctl.py status --json
+cd optionsplus/host && cargo build --release
+S=target/release/sofctl
+$S hello                 # USB든 BLE든 자동
+$S watch                 # 레이어 바꾸면 실시간 출력
+$S layer 1; $S bt 2; $S out toggle
+$S status --json
 ```
