@@ -1,5 +1,6 @@
 # sofle: Corne 대비 차이만 적는다. 베이스 = config/corne.keymap
 # 생성: python3 keymap/gen.py  (생성된 config/*.keymap 은 직접 고치지 말 것)
+# 키보드 키맵 전체를 흡수: python3 keymap/gen.py --absorb sofle <file.keymap>
 
 output = "config/sofle.keymap"
 includes = ["dt-bindings/zmk/ext_power.h"]
@@ -31,18 +32,22 @@ MED = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
 [behaviors.mo_sk]
 _node = "momentary_sticky_layer"
 compatible = "\"zmk,behavior-hold-tap\""
+label = "\"MO_SK\""
 "#binding-cells" = "<2>"
 flavor = "\"tap-preferred\""
 tapping-term-ms = "<200>"
 quick-tap-ms = "<150>"
 bindings = "<&mo>, <&sk>"
-label = "\"MO_SK\""
 
 [behaviors.hmr_l]
+tapping-term-ms = "<200>"
+quick-tap-ms = "<190>"
 require-prior-idle-ms = "<120>"
 hold-trigger-key-positions = "<RIGHT_KEYS>"
 
 [behaviors.hmr_r]
+tapping-term-ms = "<200>"
+quick-tap-ms = "<190>"
 require-prior-idle-ms = "<120>"
 hold-trigger-key-positions = "<LEFT_KEYS>"
 
@@ -96,12 +101,10 @@ flavor = "\"tap-preferred\""
 41 = "&trans"                               # corne: &kp RALT
 
 [override.NUM]
-10 = "&trans"                               # corne: &none
 13 = "&trans"                               # corne: &kp LEFT
 14 = "&trans"                               # corne: &kp DOWN
 15 = "&trans"                               # corne: &kp UP_ARROW
 16 = "&trans"                               # corne: &kp RIGHT
-22 = "&trans"                               # corne: &none
 
 [override.MSE]
 6 = "&msc SCRL_LEFT"                        # corne: &trans

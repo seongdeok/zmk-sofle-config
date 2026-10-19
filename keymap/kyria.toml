@@ -1,5 +1,6 @@
 # kyria: Corne 대비 차이만 적는다. 베이스 = config/corne.keymap
 # 생성: python3 keymap/gen.py  (생성된 config/*.keymap 은 직접 고치지 말 것)
+# 키보드 키맵 전체를 흡수: python3 keymap/gen.py --absorb kyria <file.keymap>
 
 output = "config/gaggs_kyria.keymap"
 includes = ["dt-bindings/zmk/pointing.h"]

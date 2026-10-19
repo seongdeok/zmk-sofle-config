@@ -39,8 +39,8 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <220>;
-            quick-tap-ms = <175>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
             require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <RIGHT_KEYS>;
@@ -51,8 +51,8 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <220>;
-            quick-tap-ms = <175>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
             require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <LEFT_KEYS>;
@@ -105,12 +105,12 @@
         };
         mo_sk: momentary_sticky_layer {
             compatible = "zmk,behavior-hold-tap";
+            label = "MO_SK";
             #binding-cells = <2>;
             flavor = "tap-preferred";
             tapping-term-ms = <200>;
             quick-tap-ms = <150>;
             bindings = <&mo>, <&sk>;
-            label = "MO_SK";
         };
     };
 
@@ -160,8 +160,8 @@
             display-name = "NUM";
             bindings = <
 &trans  &trans  &trans  &trans  &trans  &trans  &none   &trans        &trans        &trans        &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans  &none   &kp NUMBER_7  &kp NUMBER_8  &kp NUMBER_9  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans  &none   &kp NUMBER_4  &kp NUMBER_5  &kp NUMBER_6  &trans  &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &none   &kp NUMBER_7  &kp NUMBER_8  &kp NUMBER_9  &none   &trans
+&trans  &trans  &trans  &trans  &trans  &trans  &none   &kp NUMBER_4  &kp NUMBER_5  &kp NUMBER_6  &none   &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans        &kp NUMBER_0  &kp N1        &kp N2  &kp N3  &kp DOT  &trans
 &trans  &trans  &trans  &trans  &trans  &trans  &trans  &trans        &trans        &trans
             >;

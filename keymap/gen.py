@@ -342,10 +342,101 @@ def compare(a, b):
     return diffs
 
 
+# ---------------------------------------------------------------- absorb
+def _q(s):
+    return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _raw_behaviors(text):
+    beh = find_block(text, r"^\s*behaviors\s*\{")
+    d = {}
+    for lbl, name, s, e in child_nodes(text, beh) if beh else []:
+        props = {}
+        for p in strip_comments(text[s:e]).split("{", 1)[1].rsplit("}", 1)[0].split(";"):
+            p = re.sub(r"\s+", " ", p).strip()
+            if p:
+                k, _, v = p.partition("=")
+                props[k.strip()] = v.strip()
+        d[lbl] = (name, props)
+    return d
+
+
+def absorb(board, path, base_text):
+    """Rewrite board's toml so it reproduces the full keymap at `path`.
+
+    Keeps output/includes/layout/layer_names; recomputes defines, sensors,
+    behaviors, override and extras as the diff against the base."""
+    other = open(path).read()
+    rb, ro = resolve(base_text), resolve(path)
+    _, bl = parse_layers(base_text)
+    _, ol = parse_layers(other)
+    names = [L["name"] for L in bl]
+    if len(ol) != len(bl):
+        raise ValueError(f"{path}: {len(ol)} layers, base has {len(bl)}")
+    cfg = board.cfg
+    out = [f"# {board.id}: Corne 대비 차이만 적는다. 베이스 = config/corne.keymap",
+           "# 생성: python3 keymap/gen.py  (생성된 config/*.keymap 은 직접 고치지 말 것)",
+           f"# 키보드 키맵 전체를 흡수: python3 keymap/gen.py --absorb {board.id} <file.keymap>",
+           "", f"output = {_q(cfg['output'])}"]
+    incs = list(dict.fromkeys(cfg.get("includes", []) + [
+        i for i in re.findall(r"#include <([^>]+)>", other) if f"<{i}>" not in base_text]))
+    out.append("includes = [" + ", ".join(_q(i) for i in incs) + "]")
+    out += ["", "# 물리 키 순서. 숫자 = Corne 키 번호(0..41), 이름 = Corne에 없는 키(그룹 = 끝 숫자 뺀 이름)",
+            "layout = '''", cfg["layout"].strip("\n"), "'''"]
+    if cfg.get("layer_names"):
+        out += ["", "[layer_names]"] + [f"{k} = {_q(v)}" for k, v in cfg["layer_names"].items()]
+    defs = re.findall(r"^#define\s+(\w+)[ \t]+((?:.*\\\n)*.*)$", other, re.M)
+    if defs:
+        out += ["", "[defines]"] + [f"{n} = {_q(' '.join(v.replace(chr(92), '').split()))}" for n, v in defs]
+    sens = [(names[i], L["sensors"]) for i, L in enumerate(ol) if L["sensors"]]
+    if sens:
+        out += ["", "[sensors]"] + [f"{n} = {_q(re.sub(r'\s+', ' ', v.strip('<>').strip()))}" for n, v in sens]
+    bb, ob = _raw_behaviors(base_text), _raw_behaviors(other)
+    for lbl, (name, props) in ob.items():
+        bp = bb.get(lbl, (None, {}))[1]
+        ch = {"_node": name} if lbl not in bb else {}
+        for k, v in props.items():
+            if (k != "label" or lbl not in bb) and bp.get(k) != v:
+                ch[k] = v
+        for k in bp:
+            if k not in props and k != "label":
+                ch[k] = False
+        if ch:
+            out += ["", f"[behaviors.{lbl}]"]
+            for k, v in ch.items():
+                key = k if re.fullmatch(r"[A-Za-z0-9_-]+", k) else _q(k)
+                out.append(f"{key} = {'false' if v is False else _q(v)}")
+    total = 0
+    for li, n in enumerate(names):
+        if len(ol[li]["bindings"]) != len(board.slots):
+            raise ValueError(f"{path}: layer {n} has {len(ol[li]['bindings'])} keys, layout has {len(board.slots)}")
+        ov = [f"{t} = {_q(ol[li]['bindings'][i])}".ljust(44) + f"# corne: {bl[li]['bindings'][t]}"
+              for i, t in enumerate(board.slots)
+              if isinstance(t, int) and ro["layers"][li][i] != rb["layers"][li][t]]
+        total += len(ov)
+        if ov:
+            out += ["", f"[override.{n}]"] + ov
+    for li, n in enumerate(names):
+        grp = {}
+        for i, t in enumerate(board.slots):
+            if isinstance(t, str):
+                grp.setdefault(re.sub(r"\d+$", "", t), []).append(ol[li]["bindings"][i])
+        grp = {g: v for g, v in grp.items() if any(x != "&trans" for x in v)}
+        if grp:
+            out += ["", f"[extras.{n}]"] + [f"{g} = {_q('  '.join(v))}" for g, v in grp.items()]
+    tpath = os.path.join(OVERLAY_DIR, board.id + ".toml")
+    open(tpath, "w").write("\n".join(out) + "\n")
+    print(f"  {os.path.relpath(tpath, ROOT)}: absorbed {path} ({total} overrides)")
+
+
 # ---------------------------------------------------------------- main
 def main(argv):
     base_text = open(BASE).read()
     boards = [Board(p) for p in board_files()]
+    if argv[:1] == ["--absorb"]:
+        absorb(next(x for x in boards if x.id == argv[1]), argv[2], base_text)
+        boards = [Board(p) for p in board_files()]
+        argv = []
     if argv[:1] == ["--compare"]:
         b = next(x for x in boards if x.id == argv[1])
         diffs = compare(resolve(generate(b, base_text)), resolve(argv[2]))
