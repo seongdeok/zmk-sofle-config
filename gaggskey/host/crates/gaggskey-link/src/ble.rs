@@ -12,6 +12,8 @@ use std::thread;
 use std::time::Duration;
 
 use btleplug::api::{Central, Manager as _, Peripheral as _, ScanFilter, WriteType};
+#[cfg(target_os = "macos")]
+use btleplug::api::RetrievePeripheralsOptions;
 use btleplug::platform::{Manager, Peripheral};
 use futures::StreamExt;
 use gaggskey_proto::{self as proto, Frame};
@@ -33,8 +35,24 @@ fn uuid(s: &str) -> Uuid {
 async fn find(manager: &Manager) -> std::result::Result<Peripheral, String> {
     let service = uuid(proto::BT_SERVICE_UUID);
     for adapter in manager.adapters().await.map_err(|e| e.to_string())? {
-        // Already-connected devices are listed by the OS without scanning on
-        // BlueZ; a short filtered scan also lets CoreBluetooth surface them.
+        // CoreBluetooth reports system-connected peripherals as disconnected
+        // until this app calls connect(), which reuses the OS link.
+        #[cfg(target_os = "macos")]
+        if let Ok(peripherals) = adapter
+            .retrieve_peripherals(RetrievePeripheralsOptions {
+                services: Some(vec![service]),
+                ..Default::default()
+            })
+            .await
+        {
+            for p in peripherals {
+                if p.is_connected().await.unwrap_or(false) || p.connect().await.is_ok() {
+                    return Ok(p);
+                }
+            }
+        }
+
+        // A short filtered scan also lets CoreBluetooth surface connected devices.
         let _ = adapter.start_scan(ScanFilter { services: vec![service] }).await;
         tokio::time::sleep(Duration::from_millis(300)).await;
         let _ = adapter.stop_scan().await;
