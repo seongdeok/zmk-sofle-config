@@ -39,7 +39,7 @@ gaggskey/
 ## 1. 펌웨어
 
 ```sh
-./gaggskey/build.sh left           # → firmware/nice_sofle_left_oled_gaggskey.uf2
+./build.sh sofle left             # → firmware/nice_sofle_left_oled_gaggskey.uf2 (corne|kyria 도 가능)
 ```
 
 왼쪽 반쪽(central)만 다시 플래시하면 됩니다 (리셋 2번 → `NICENANO` 드라이브에 uf2 복사).

@@ -88,7 +88,7 @@ Logitech GaggsKey 같은 PC 앱으로 Sofle(ZMK) 키보드의 **상태를 실시
 - 모듈은 왼쪽(central) 빌드에만 넣음: `-DZMK_EXTRA_MODULES=…/gaggskey/firmware -DEXTRA_CONF_FILE=…/gaggskey_central.conf`
 - `gaggskey_central.conf`: `CONFIG_ZMK_GAGGSKEY=y`, `CONFIG_USB_HID_DEVICE_COUNT=2`, `CONFIG_ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING=y`
 - 오른쪽 반쪽과 `config/sofle.conf`는 수정하지 않음
-- 로컬 빌드: `gaggskey/build.sh [left|right|all]` (docker `zmk-dev-arm:3.5`)
+- 로컬 빌드: `./build.sh [sofle|corne|kyria] [left|right]` (docker `zmk-dev-arm:3.5`)
 - GitHub Actions(`build.yaml`)에 넣는 건 TODO. 왼쪽 항목의 cmake-args에 모듈 경로를 넘겨야 함
 
 측정값 (왼쪽, GaggsKey 포함): FLASH 342,836 B (42.3%), RAM 137,004 B (52.3%)

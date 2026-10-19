@@ -84,3 +84,14 @@ __pycache__
 # Rust
 target/
 **/*.rs.bk
+
+# local docker builds (./build.sh)
+/build/
+/build-*/
+/.west/
+firmware/*_gaggskey.uf2
+firmware/corne_right.uf2
+firmware/gaggs_kyria_right.uf2
+/zephyr/
+/modules/
+/zmk-*/

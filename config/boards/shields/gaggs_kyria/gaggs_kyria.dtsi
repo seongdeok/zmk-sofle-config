@@ -1,0 +1,125 @@
+#include <dt-bindings/zmk/matrix_transform.h>
+#include <physical_layouts.dtsi>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+        zmk,physical-layout = &gaggs_kyria_layout;
+    };
+
+    zmk_studio: zmk_studio {
+        compatible = "zmk,studio";
+    };
+
+    gaggs_kyria_layout: gaggs_kyria_layout {
+        compatible = "zmk,physical-layout";
+        display-name = "Gaggs Kyria Layout";
+        transform = <&default_transform>; 
+        kscan = <&kscan0>;
+
+        /*
+         * 매트릭스 맵 순서와 1:1 대응 (총 50키)
+         *   Row 0: RC(0,0-5) left 6  + RC(0,8-13) right 6       = 12
+         *   Row 1: RC(1,0-5) left 6  + RC(1,8-13) right 6       = 12
+         *   Row 2: RC(2,0-5) left 6  + RC(2,6) inner-L           =
+         *          RC(2,7) inner-R   + RC(2,8-13) right 6        = 14
+         *   Row 3: RC(3,1-6) left thumb 6 + RC(3,7-12) right 6  = 12
+         *                                                          ---
+         *                                                           50
+         *
+         * key_physical_attrs: w h x y rot rx ry   (centiunits; rot=centidegrees)
+         */
+        keys
+            /* ── Row 0: 왼쪽 RC(0,0)~RC(0,5) ── */
+            = <&key_physical_attrs 100 100    0  50    0    0    0>
+            , <&key_physical_attrs 100 100  100  25    0    0    0>
+            , <&key_physical_attrs 100 100  200   0    0    0    0>
+            , <&key_physical_attrs 100 100  300  25    0    0    0>
+            , <&key_physical_attrs 100 100  400  50    0    0    0>
+            , <&key_physical_attrs 100 100  500  75    0    0    0>
+            /* ── Row 0: 오른쪽 RC(0,8)~RC(0,13) ── */
+            , <&key_physical_attrs 100 100 1200  75    0    0    0>
+            , <&key_physical_attrs 100 100 1300  50    0    0    0>
+            , <&key_physical_attrs 100 100 1400  25    0    0    0>
+            , <&key_physical_attrs 100 100 1500   0    0    0    0>
+            , <&key_physical_attrs 100 100 1600  25    0    0    0>
+            , <&key_physical_attrs 100 100 1700  50    0    0    0>
+
+            /* ── Row 1: 왼쪽 RC(1,0)~RC(1,5) ── */
+            , <&key_physical_attrs 100 100    0 150    0    0    0>
+            , <&key_physical_attrs 100 100  100 125    0    0    0>
+            , <&key_physical_attrs 100 100  200 100    0    0    0>
+            , <&key_physical_attrs 100 100  300 125    0    0    0>
+            , <&key_physical_attrs 100 100  400 150    0    0    0>
+            , <&key_physical_attrs 100 100  500 175    0    0    0>
+            /* ── Row 1: 오른쪽 RC(1,8)~RC(1,13) ── */
+            , <&key_physical_attrs 100 100 1200 175    0    0    0>
+            , <&key_physical_attrs 100 100 1300 150    0    0    0>
+            , <&key_physical_attrs 100 100 1400 125    0    0    0>
+            , <&key_physical_attrs 100 100 1500 100    0    0    0>
+            , <&key_physical_attrs 100 100 1600 125    0    0    0>
+            , <&key_physical_attrs 100 100 1700 150    0    0    0>
+
+            /* ── Row 2: 왼쪽 RC(2,0)~RC(2,5) ── */
+            , <&key_physical_attrs 100 100    0 250    0    0    0>
+            , <&key_physical_attrs 100 100  100 225    0    0    0>
+            , <&key_physical_attrs 100 100  200 200    0    0    0>
+            , <&key_physical_attrs 100 100  300 225    0    0    0>
+            , <&key_physical_attrs 100 100  400 250    0    0    0>
+            , <&key_physical_attrs 100 100  500 275    0    0    0>
+            /* ── Row 2: 왼쪽 inner-extension RC(2,6) S ── */
+            , <&key_physical_attrs 100 100  640 285 1500  690  335>
+            /* ── Row 2: 오른쪽 inner-extension RC(2,7) M ── */
+            , <&key_physical_attrs 100 100 1060 285 (-1500) 1110  335>
+            /* ── Row 2: 오른쪽 RC(2,8)~RC(2,13) ── */
+            , <&key_physical_attrs 100 100 1200 275    0    0    0>
+            , <&key_physical_attrs 100 100 1300 250    0    0    0>
+            , <&key_physical_attrs 100 100 1400 225    0    0    0>
+            , <&key_physical_attrs 100 100 1500 200    0    0    0>
+            , <&key_physical_attrs 100 100 1600 225    0    0    0>
+            , <&key_physical_attrs 100 100 1700 250    0    0    0>
+
+            /* ── Row 3 왼쪽 엄지 RC(3,1)~RC(3,6) ── */
+            , <&key_physical_attrs 100 100  200 300    0    0    0>    /* RC(3,1) T : O(x=200,y=200) 바로 아래 */
+            , <&key_physical_attrs 100 100  350 350    0    0    0>    /* RC(3,2) U : P(300)~Q(400) 중간 x=350 */
+            , <&key_physical_attrs 100 100  480 385  750  530  435>    /* RC(3,3) V : y 아래로 */
+            , <&key_physical_attrs 100 100  615 368 1500  665  418>    /* RC(3,4) W : S 바로 아래 (왼쪽+위), 15° */
+            , <&key_physical_attrs 100 100  735 383 2500  785  433>    /* RC(3,5) X : Y+(Δx=-25,Δy=+83), S→W과 동일 데델타 */
+            , <&key_physical_attrs 100 100  760 300 2500  810  350>    /* RC(3,6) Y : 25°, y 아래로 */
+            /* ── Row 3 오른쪽 엄지 RC(3,7)~RC(3,12) ── */
+            , <&key_physical_attrs 100 100  940 300 (-2500)  990  350>    /* RC(3,7) T': Y 대칭, -25° */
+            , <&key_physical_attrs 100 100  965 383 (-2500) 1015  433>    /* RC(3,8) U': X 거울, x=1800-735-100 */
+            , <&key_physical_attrs 100 100 1085 368 (-1500) 1135  418>    /* RC(3,9) V': W 대칭, -15° */
+            , <&key_physical_attrs 100 100 1220 385 (-750) 1270  435>    /* RC(3,10) W': V 대칭, -7.5° */
+            , <&key_physical_attrs 100 100 1350 350    0    0    0>    /* RC(3,11) X': U(x=350) 대칭 */
+            , <&key_physical_attrs 100 100 1500 300    0    0    0>    /* RC(3,12) Y': T(y=300) 대칭 */
+            ;
+    };
+
+    default_transform: keymap_transform_0 {
+        compatible = "zmk,matrix-transform";
+        columns = <14>;
+        rows = <4>;
+          map = <
+RC(0,0) RC(0,1) RC(0,2) RC(0,3) RC(0,4) RC(0,5)                          RC(0,8) RC(0,9) RC(0,10) RC(0,11) RC(0,12) RC(0,13)
+RC(1,0) RC(1,1) RC(1,2) RC(1,3) RC(1,4) RC(1,5)                          RC(1,8) RC(1,9) RC(1,10) RC(1,11) RC(1,12) RC(1,13)
+RC(2,0) RC(2,1) RC(2,2) RC(2,3) RC(2,4) RC(2,5) RC(2,6)        RC(2,7)   RC(2,8) RC(2,9) RC(2,10) RC(2,11) RC(2,12) RC(2,13)
+        RC(3,1) RC(3,2) RC(3,3) RC(3,4) RC(3,5) RC(3,6)        RC(3,7)   RC(3,8) RC(3,9) RC(3,10) RC(3,11) RC(3,12)
+        >;
+    };
+
+    kscan0: kscan {
+        compatible = "zmk,kscan-gpio-matrix";
+        label = "KSCAN";
+        diode-direction = "col2row";
+        wakeup-source;
+
+        row-gpios
+        = <&pro_micro 4 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+        , <&pro_micro 5 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+        , <&pro_micro 6 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+        , <&pro_micro 7 (GPIO_ACTIVE_HIGH | GPIO_PULL_DOWN)>
+        ;
+    };
+};

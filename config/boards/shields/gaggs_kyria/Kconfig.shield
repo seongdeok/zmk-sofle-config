@@ -1,0 +1,5 @@
+config SHIELD_GAGGS_KYRIA_LEFT
+    def_bool $(shields_list_contains,gaggs_kyria_left)
+
+config SHIELD_GAGGS_KYRIA_RIGHT
+    def_bool $(shields_list_contains,gaggs_kyria_right)

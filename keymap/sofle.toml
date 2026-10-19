@@ -1,0 +1,171 @@
+# sofle: Corne 대비 차이만 적는다. 베이스 = config/corne.keymap
+# 생성: python3 keymap/gen.py  (생성된 config/*.keymap 은 직접 고치지 말 것)
+
+output = "config/sofle.keymap"
+includes = ["dt-bindings/zmk/ext_power.h"]
+
+# 물리 키 순서. 숫자 = Corne 키 번호(0..41), 이름 = Corne에 없는 키(그룹 = 끝 숫자 뺀 이름)
+layout = '''
+num0 num1 num2 num3 num4 num5 num6 num7 num8 num9 num10 num11
+0  1  2  3  4  5  6  7  8  9  10 11
+12 13 14 15 16 17 18 19 20 21 22 23
+24 25 26 27 28 29 enc0 enc1 30 31 32 33 34 35
+thumb0 thumb1 36 37 38 39 40 41 thumb2 thumb3
+'''
+
+[defines]
+LEFT_KEYS = "0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29 36 37 38 39 40 41 42 50 51 52 53 54"
+RIGHT_KEYS = "6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35 43 44 45 46 47 48 49 55 56 57 58 59"
+LEFT_THUMBS = "50 51 52 53 54"
+RIGHT_THUMBS = "55 56 57 58 59"
+
+[sensors]
+BAS = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+NAV = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+SYM = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+NUM = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+MSE = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+FUN = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+MED = "&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP"
+
+[behaviors.mo_sk]
+_node = "momentary_sticky_layer"
+compatible = "\"zmk,behavior-hold-tap\""
+"#binding-cells" = "<2>"
+flavor = "\"tap-preferred\""
+tapping-term-ms = "<200>"
+quick-tap-ms = "<150>"
+bindings = "<&mo>, <&sk>"
+label = "\"MO_SK\""
+
+[behaviors.hmr_l]
+require-prior-idle-ms = "<120>"
+hold-trigger-key-positions = "<RIGHT_KEYS>"
+
+[behaviors.hmr_r]
+require-prior-idle-ms = "<120>"
+hold-trigger-key-positions = "<LEFT_KEYS>"
+
+[behaviors.hmr]
+flavor = "\"tap-preferred\""
+
+[behaviors.hmr_mo]
+flavor = "\"tap-preferred\""
+
+[override.BAS]
+11 = "&kp BSLH"                             # corne: &kp BSPC
+35 = "&kp GRAVE"                            # corne: &kp TILDE
+41 = "&lt_th 6 DEL"                         # corne: &lt_th 6 LC(SPACE)
+
+[override.NAV]
+0 = "&trans"                                # corne: &kp TAB
+1 = "&trans"                                # corne: &kp F1
+2 = "&trans"                                # corne: &kp F2
+3 = "&trans"                                # corne: &kp F3
+4 = "&trans"                                # corne: &kp F4
+5 = "&trans"                                # corne: &kp F5
+6 = "&trans"                                # corne: &kp F6
+7 = "&trans"                                # corne: &kp F7
+8 = "&trans"                                # corne: &kp F8
+9 = "&trans"                                # corne: &kp F9
+10 = "&trans"                               # corne: &kp F10
+11 = "&trans"                               # corne: &kp BACKSPACE
+13 = "&kp LCTRL"                            # corne: &kp LEFT_ARROW
+14 = "&kp LGUI"                             # corne: &kp DOWN_ARROW
+15 = "&kp LALT"                             # corne: &kp UP_ARROW
+16 = "&kp LEFT_SHIFT"                       # corne: &kp RIGHT
+22 = "&trans"                               # corne: &kp PAGE_UP
+24 = "&trans"                               # corne: &kp LSHFT
+34 = "&trans"                               # corne: &kp PAGE_DOWN
+36 = "&trans"                               # corne: &kp LGUI
+
+[override.SYM]
+0 = "&trans"                                # corne: &kp TAB
+8 = "&kp ASTRK"                             # corne: &kp KP_MULTIPLY
+11 = "&kp F12"                              # corne: &kp BSPC
+12 = "&trans"                               # corne: &kp LCTRL
+24 = "&trans"                               # corne: &kp LSHFT
+25 = "&trans"                               # corne: &bt BT_SEL 0
+26 = "&trans"                               # corne: &bt BT_SEL 1
+27 = "&trans"                               # corne: &bt BT_SEL 2
+28 = "&trans"                               # corne: &bt BT_SEL 3
+29 = "&trans"                               # corne: &bt BT_CLR
+36 = "&trans"                               # corne: &kp LGUI
+38 = "&trans"                               # corne: &kp SPACE
+39 = "&trans"                               # corne: &kp RET
+41 = "&trans"                               # corne: &kp RALT
+
+[override.NUM]
+10 = "&trans"                               # corne: &none
+13 = "&trans"                               # corne: &kp LEFT
+14 = "&trans"                               # corne: &kp DOWN
+15 = "&trans"                               # corne: &kp UP_ARROW
+16 = "&trans"                               # corne: &kp RIGHT
+22 = "&trans"                               # corne: &none
+
+[override.MSE]
+6 = "&msc SCRL_LEFT"                        # corne: &trans
+7 = "&msc SCRL_DOWN"                        # corne: &trans
+8 = "&msc SCRL_UP"                          # corne: &trans
+9 = "&msc SCRL_RIGHT"                       # corne: &trans
+13 = "&kp LCTRL"                            # corne: &trans
+14 = "&mkp RCLK"                            # corne: &trans
+15 = "&mkp MCLK"                            # corne: &trans
+16 = "&mkp LCLK"                            # corne: &trans
+18 = "&mmv MOVE_LEFT"                       # corne: &msc SCRL_LEFT
+19 = "&mmv MOVE_DOWN"                       # corne: &msc SCRL_DOWN
+20 = "&mmv MOVE_UP"                         # corne: &msc SCRL_UP
+21 = "&mmv MOVE_RIGHT"                      # corne: &msc SCRL_RIGHT
+30 = "&trans"                               # corne: &mmv MOVE_LEFT
+31 = "&trans"                               # corne: &mmv MOVE_DOWN
+32 = "&trans"                               # corne: &mmv MOVE_UP
+33 = "&trans"                               # corne: &mmv MOVE_RIGHT
+
+[override.FUN]
+13 = "&kp F11"                              # corne: &trans
+14 = "&kp F12"                              # corne: &trans
+19 = "&kp RIGHT_SHIFT"                      # corne: &trans
+20 = "&kp RIGHT_ALT"                        # corne: &trans
+21 = "&kp RIGHT_GUI"                        # corne: &trans
+22 = "&kp RCTRL"                            # corne: &trans
+24 = "&trans"                               # corne: &bootloader
+25 = "&trans"                               # corne: &kp LA(Z)
+27 = "&trans"                               # corne: &kp LA(C)
+28 = "&trans"                               # corne: &kp LA(V)
+35 = "&trans"                               # corne: &bootloader
+
+[override.MED]
+1 = "&bt BT_SEL 0"                          # corne: &trans
+2 = "&bt BT_SEL 1"                          # corne: &trans
+3 = "&bt BT_SEL 2"                          # corne: &trans
+4 = "&bt BT_SEL 3"                          # corne: &trans
+5 = "&bt BT_CLR"                            # corne: &trans
+7 = "&kp C_VOL_DN"                          # corne: &trans
+8 = "&kp C_VOL_UP"                          # corne: &trans
+9 = "&kp C_MUTE"                            # corne: &trans
+13 = "&kp LCTRL"                            # corne: &trans
+14 = "&kp LEFT_WIN"                         # corne: &trans
+15 = "&kp LEFT_ALT"                         # corne: &trans
+16 = "&kp LEFT_SHIFT"                       # corne: &trans
+18 = "&kp C_PREV"                           # corne: &trans
+19 = "&kp C_PP"                             # corne: &kp C_VOL_DN
+20 = "&kp C_PLAY"                           # corne: &kp C_VOL_UP
+21 = "&kp C_NEXT"                           # corne: &kp C_MUTE
+30 = "&trans"                               # corne: &kp C_PREV
+31 = "&trans"                               # corne: &kp C_PP
+32 = "&trans"                               # corne: &kp C_PLAY
+33 = "&trans"                               # corne: &kp C_NEXT
+
+[extras.BAS]
+num = "&kp GRAVE  &kp N1  &kp N2  &kp N3  &kp N4  &kp N5  &kp N6  &kp N7  &kp N8  &kp N9  &kp N0  &kp BSPC"
+enc = "&kp C_MUTE  &kp C_MUTE"
+thumb = "&kp LCTRL  &kp LGUI  &kp RALT  &kp RGUI"
+
+[extras.NAV]
+num = "&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3  &bt BT_SEL 4  &trans  &trans  &trans  &trans  &trans  &trans"
+
+[extras.SYM]
+num = "&kp GRAVE  &kp F1  &kp F2  &kp F3  &kp F4  &kp F5  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10  &kp F11"
+
+[extras.NUM]
+num = "&trans  &trans  &trans  &trans  &trans  &trans  &none  &trans  &trans  &trans  &trans  &trans"

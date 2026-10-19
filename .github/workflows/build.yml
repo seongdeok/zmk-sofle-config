@@ -1,5 +1,13 @@
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  keymap-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generated keymaps are up to date
+        run: python3 keymap/gen.py --check
+
   build:
+    needs: keymap-check
     uses: zmkfirmware/zmk/.github/workflows/build-user-config.yml@v0.3.0

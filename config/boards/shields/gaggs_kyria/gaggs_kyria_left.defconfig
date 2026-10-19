@@ -1,0 +1,4 @@
+if SHIELD_GAGGS_KYRIA_LEFT
+config ZMK_KEYBOARD_NAME
+    default "GaggsKyria"
+endif
