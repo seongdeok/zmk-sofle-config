@@ -41,8 +41,8 @@
 #include <zmk/hid_indicators.h>
 #include <zmk/events/hid_indicators_changed.h>
 #endif
-#if IS_ENABLED(CONFIG_ZMK_SPLIT)
-#include <zmk/events/split_peripheral_status_changed.h>
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE)
+#include <zephyr/bluetooth/conn.h>
 #endif
 #if IS_ENABLED(CONFIG_ZMK_USB)
 #include <zmk/events/usb_conn_state_changed.h>
@@ -379,16 +379,6 @@ static int op_listener(const zmk_event_t *eh) {
         periph_battery = pb->state_of_charge;
     }
 #endif
-#if IS_ENABLED(CONFIG_ZMK_SPLIT)
-    const struct zmk_split_peripheral_status_changed *ps =
-        as_zmk_split_peripheral_status_changed(eh);
-    if (ps) {
-        periph_connected = ps->connected;
-        if (!ps->connected) {
-            periph_battery = OP_BATTERY_UNKNOWN;
-        }
-    }
-#endif
     op_request_push();
     return ZMK_EV_EVENT_BUBBLE;
 }
@@ -412,9 +402,35 @@ ZMK_SUBSCRIPTION(optionsplus, zmk_wpm_state_changed);
 #if IS_ENABLED(CONFIG_ZMK_HID_INDICATORS)
 ZMK_SUBSCRIPTION(optionsplus, zmk_hid_indicators_changed);
 #endif
-#if IS_ENABLED(CONFIG_ZMK_SPLIT)
-ZMK_SUBSCRIPTION(optionsplus, zmk_split_peripheral_status_changed);
-#endif
-#if IS_ENABLED(CONFIG_ZMK_USB)
-ZMK_SUBSCRIPTION(optionsplus, zmk_usb_conn_state_changed);
+
+#if IS_ENABLED(CONFIG_ZMK_SPLIT_BLE)
+/*
+ * zmk_split_peripheral_status_changed is only raised on the peripheral side.
+ * On the central, hosts connect to us as BLE peripheral, while the link to the
+ * other half is the one where we are the BLE central role.
+ */
+static bool is_split_link(struct bt_conn *conn) {
+    struct bt_conn_info info;
+    return bt_conn_get_info(conn, &info) == 0 && info.role == BT_CONN_ROLE_CENTRAL;
+}
+
+static void op_connected(struct bt_conn *conn, uint8_t err) {
+    if (!err && is_split_link(conn)) {
+        periph_connected = true;
+        op_request_push();
+    }
+}
+
+static void op_disconnected(struct bt_conn *conn, uint8_t reason) {
+    if (is_split_link(conn)) {
+        periph_connected = false;
+        periph_battery = OP_BATTERY_UNKNOWN;
+        op_request_push();
+    }
+}
+
+BT_CONN_CB_DEFINE(optionsplus_conn_cb) = {
+    .connected = op_connected,
+    .disconnected = op_disconnected,
+};
 #endif
