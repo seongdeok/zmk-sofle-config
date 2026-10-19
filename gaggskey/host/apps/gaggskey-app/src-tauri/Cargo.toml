@@ -1,0 +1,16 @@
+[package]
+name = "gaggskey-app"
+description = "GaggsKey desktop app (tray + window)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+serde.workspace = true
+serde_json.workspace = true
+gaggskey-proto.workspace = true
+gaggskey-core.workspace = true

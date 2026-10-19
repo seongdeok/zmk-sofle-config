@@ -1,0 +1,11 @@
+[package]
+name = "gaggskey-core"
+description = "Connection manager: auto (re)connect, state cache, command queue"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+gaggskey-proto.workspace = true
+gaggskey-link.workspace = true
+serde.workspace = true

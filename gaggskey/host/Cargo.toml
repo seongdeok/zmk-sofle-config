@@ -1,0 +1,23 @@
+[workspace]
+resolver = "2"
+members = ["crates/gaggskey-proto", "crates/gaggskey-link", "crates/gaggskey-core", "apps/gkctl", "apps/gaggskey-app/src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[workspace.dependencies]
+gaggskey-proto = { path = "crates/gaggskey-proto" }
+gaggskey-link = { path = "crates/gaggskey-link" }
+gaggskey-core = { path = "crates/gaggskey-core" }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "2"
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+btleplug = "0.13"
+tokio = { version = "1", features = ["rt", "time", "sync", "macros"] }
+futures = "0.3"
+uuid = "1"
+hidapi = { version = "2", default-features = false }

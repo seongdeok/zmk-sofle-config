@@ -1,0 +1,42 @@
+menuconfig ZMK_GAGGSKEY
+    bool "GaggsKey host link (status push + remote commands)"
+    depends on ZMK_SPLIT_ROLE_CENTRAL || !ZMK_SPLIT
+    imply ZMK_SPLIT_BLE_CENTRAL_BATTERY_LEVEL_FETCHING
+    help
+      Exposes keyboard state (layers, battery, BT profile, output, WPM,
+      lock LEDs) to a host app and accepts commands from it, over a
+      vendor HID interface (USB) and/or a custom GATT service (BLE).
+
+if ZMK_GAGGSKEY
+
+config ZMK_GAGGSKEY_USB
+    bool "USB transport (vendor HID interface)"
+    default y
+    depends on ZMK_USB
+
+config ZMK_GAGGSKEY_BLE
+    bool "BLE transport (custom GATT service)"
+    default y
+    depends on ZMK_BLE
+
+config ZMK_GAGGSKEY_DANGEROUS_CMDS
+    bool "Allow reset / bootloader commands from the host"
+    default y
+
+config ZMK_GAGGSKEY_PUSH_DEBOUNCE_MS
+    int "Coalesce state pushes within this window (ms)"
+    default 30
+
+config ZMK_GAGGSKEY_USB_TX_TIMEOUT_MS
+    int "Max wait for the IN endpoint before dropping a frame (ms)"
+    default 5
+
+config ZMK_GAGGSKEY_USB_INIT_PRIORITY
+    int "Init priority of the vendor HID interface"
+    default 96
+
+module = ZMK_GAGGSKEY
+module-str = gaggskey
+source "subsys/logging/Kconfig.template.log_config"
+
+endif

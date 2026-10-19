@@ -1,4 +1,0 @@
-# Sofle Options+ vendor HID interface: give the logged-in user access.
-# Install: sudo cp 70-sofle-optionsplus.rules /etc/udev/rules.d/ && sudo udevadm control --reload && sudo udevadm trigger
-# ZMK default USB IDs: 1d50:615e
-KERNEL=="hidraw*", ATTRS{idVendor}=="1d50", ATTRS{idProduct}=="615e", TAG+="uaccess"

@@ -1,0 +1,20 @@
+[package]
+name = "gaggskey-link"
+description = "Transports (USB HID, BLE GATT) and request/response client"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+gaggskey-proto.workspace = true
+thiserror.workspace = true
+btleplug.workspace = true
+tokio.workspace = true
+futures.workspace = true
+uuid.workspace = true
+
+[target.'cfg(target_os = "linux")'.dependencies]
+hidapi = { workspace = true, features = ["linux-native"] }
+
+[target.'cfg(not(target_os = "linux"))'.dependencies]
+hidapi = { workspace = true, features = ["macos-shared-device"] }
