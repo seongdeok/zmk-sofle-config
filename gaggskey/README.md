@@ -43,6 +43,10 @@ cd gaggskey/host/apps/gaggskey-app
 npm install
 npx tauri dev                    # 개발 (핫리로드)
 npx tauri build                  # 배포 번들 (deb/AppImage, dmg, msi)
+npx tauri build --no-bundle      # 실행파일만 (target/release/gaggskey-app)
 ```
+
+> `cargo build`로 직접 빌드하면 `custom-protocol` 기능이 빠져 dev 서버(localhost:1420)를
+> 찾습니다. 실행용 바이너리는 반드시 `tauri build`로 만드세요.
 
 트레이에 상주합니다. 창을 닫으면 트레이로 숨고, 트레이 메뉴의 "종료"로 끝납니다.
