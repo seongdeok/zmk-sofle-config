@@ -48,9 +48,9 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <220>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <100>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
+            require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <RIGHT_KEYS>;
         };
@@ -60,9 +60,9 @@
             bindings = <&kp>, <&kp>;
 
             #binding-cells = <2>;
-            tapping-term-ms = <220>;
-            quick-tap-ms = <175>;
-            require-prior-idle-ms = <100>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
+            require-prior-idle-ms = <120>;
             flavor = "balanced";
             hold-trigger-key-positions = <LEFT_KEYS>;
         };
@@ -88,7 +88,7 @@
             tapping-term-ms = <175>;
             quick-tap-ms = <175>;
             require-prior-idle-ms = <75>;
-            flavor = "hold-preferred";
+            flavor = "tap-preferred";
         };
         /* F 키 전용 Shift: 반대쪽 손 + 왼손 엄지 전체(50~54)를 트리거로 인정 */
         hms_l: homerow_mods_shift_left {
@@ -132,78 +132,78 @@
         default_layer {
             display-name = "BAS";
             // ------------------------------------------------------------------------------------------------------------
-            // |  `    |  1  |  2  |  3   |  4   |  5   |                   |  6   |  7    |  8    |  9   |   0   | BSPC  |
-            // |  TAB  |  Q  |  W  |  E   |  R   |  T   |                   |  Y   |  U    |  I    |  O   |   P   | BSLH  |
-            // |  1/ESC|  A  |  S  |  D   |  F   |  G   |                   |  H   |  J    |  K    |  L   |   ;   |   '   |
-            // | SHIFT |  Z  |  X  |  C   |  V   |  B   |  MUTE  |  |       |  N   |  M    |  ,    |  .   |   /   |    `  |
-            //               | GUI | ALT  | CTRL | LOWER|  SPACE |  | RET   | RAISE| CTRL  | ALT   | GUI  |
+            // | GRAVE   | N1      | N2      | N3      | N4      | N5      |         |         |         |         | N6      | N7      | N8      | N9      | N0      | BSPC    |
+            // | TAB     | Q       | W       | E       | R       | T       |         |         |         |         | Y       | U       | I       | O       | P       | BSLH    |
+            // | ESC/NAV | A/LCTRL | S/LGUI  | D/LALT  | F/LSHFT | G       |         |         |         |         | H       | J/LSHFT | K/LALT  | L/LGUI  | ;/LCTRL | SQT     |
+            // | LSHIFT  | Z       | X       | C       | V       | B       | MUTE    |         |         | MUTE    | N       | M       | COMMA   | DOT     | FSLH    | GRAVE   |
+            // |         |         | LCTRL   | LGUI    | ESC/NAV | TAB/NUM | SPC/MSE |         |         | RET/FUN | BSPC/SYM| DEL/MED | RALT    | RGUI    |         |         |
 
             bindings = <
 &kp GRAVE          &kp N1  &kp N2    &kp N3    &kp N4     &kp N5                                          &kp N6  &kp N7     &kp N8     &kp N9    &kp N0    &kp BSPC
 &kp TAB            &kp Q   &kp W     &kp E     &kp R      &kp T                                           &kp Y   &kp U      &kp I      &kp O     &kp P     &kp BSLH
 &hmr_mo 1 ESC   &hmr_l LCTRL A  &hmr_l LEFT_WIN S  &hmr_l LEFT_ALT D &hms_l LEFT_SHIFT F &kp G            &kp H   &hms_r LEFT_SHIFT J  &hmr_r LEFT_ALT K  &hmr_r LEFT_GUI L  &hmr_r LEFT_CONTROL SEMI  &kp SQT
 &kp LEFT_SHIFT     &kp Z   &kp X     &kp C     &kp V      &kp B   &kp C_MUTE                &kp C_MUTE    &kp N   &kp M      &kp COMMA  &kp DOT   &kp FSLH  &kp GRAVE
-                           &kp LCTRL &kp LGUI  &lt_th 1 ESC &hmr_mo 3 TAB &lt_th 4 SPACE     &lt_th 5 RET  &lt_th 2 BSPC &lt_th 6 DEL &kp RALT   &kp RGUI
+                           &kp LCTRL &kp LGUI  &lt_th 1 ESC &lt_th 3 TAB  &lt_th 4 SPACE     &lt_th 5 RET  &lt_th 2 BSPC &lt_th 6 DEL &kp RALT   &kp RGUI
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
-        raise_layer {
+        nav_layer {
             display-name = "NAV";
             // ------------------------------------------------------------------------------------------------------------
-            // |BTCLR| BT1  | BT2  |  BT3  |  BT4  |  BT5 |                |      |      |       |      |       |       |
-            // |     |      |      |       |       |      |                |      |      |       |      |       |       |
-            // |     |      |      |       |       |      |                |  <-  |   v  |   ^   |  ->  |  PG_UP|       |
-            // |     |LA(Z) |      |LA(C)  | LA(V) |      |      |  |      | DEL  |      |       |      |PG_DOWN|       |
-            //              |      |       |       |      |      |  |      |      |      |       |      |
+            // | BT_CLR  | BT1     | BT2     | BT3     | BT4     | BT5     |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |  TRANS  |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |  TRANS  |
+            // | TRANS   | LCTRL   | LGUI    | LALT    | LSHIFT  | TRANS   |         |         |         |         | LEFT    | DOWN    | UP      | RIGHT   | CAPS    |  TRANS  |
+            // | TRANS   | LA(Z)   | TRANS   | LA(C)   | LA(V)   | TRANS   | TRANS   |         |         | TRANS   | PAGE_UP | PAGE_DN | END     | TRANS   | TRANS   |  TRANS  |
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |
 
             bindings = <
-&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3   &bt BT_SEL 4                    &trans     &trans    &trans  &trans     &trans          &trans
-&trans      &trans        &trans        &trans        &trans         &trans                          &trans     &trans    &trans  &trans     &trans          &trans
-&trans      &kp LCTRL     &kp LGUI      &kp LALT      &kp LEFT_SHIFT &trans                          &kp LEFT   &kp DOWN  &kp UP  &kp RIGHT  &kp CAPS     &trans
-&trans      &kp LA(Z)     &trans        &kp LA(C)     &kp LA(V)      &trans        &trans    &trans  &kp HOME   &kp PAGE_UP &kp PAGE_DOWN  &kp END   &trans   &trans
+&bt BT_CLR  &bt BT_SEL 0  &bt BT_SEL 1  &bt BT_SEL 2  &bt BT_SEL 3   &bt BT_SEL 4                    &trans     &trans        &trans         &trans     &trans   &trans
+&trans      &trans        &trans        &trans        &trans         &trans                          &trans     &trans        &trans         &trans     &trans   &trans
+&trans      &kp LCTRL     &kp LGUI      &kp LALT      &kp LEFT_SHIFT &trans                          &kp LEFT   &kp DOWN      &kp UP         &kp RIGHT  &trans   &trans
+&trans      &kp LA(Z)     &trans        &kp LA(C)     &kp LA(V)      &trans        &trans    &trans  &kp HOME   &kp PAGE_DOWN &kp PAGE_UP    &kp END    &trans   &trans
                           &trans        &trans        &trans         &trans        &trans    &trans  &trans     &trans    &trans  &trans
             >;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
         };
         lower_layer {
             display-name = "SYM";
             // ------------------------------------------------------------------------------------------------------------
-            // | `     |  F1 |  F2 |  F3  |  F4  |  F5  |                   |  F6  |  F7   |  F8   |  F9  |  F10  |  F11  |
-            // | RAISE |   1 |   2 |   3  |   4  |   5  |                   |   6  |   7   |   8   |   9  |    0  |  F12  |
-            // |       |     |     |      |      |      |                   │   -  │   =   │   [   │   ]  │   \   │   `   │
-            // |       |     |     |      |      |      |        |  |       │   _  │   +   │   {   │   }  │   |   │   ~   │
-            //               |     |      |      |      |        |  |       |      |       |       |      |
+            // | GRAVE   | F1      | F2      | F3      | F4      | F5      |         |         |         |         | F6      | F7      | F8      | F9      | F10     |   F11   |
+            // | TRANS   | N1      | N2      | N3      | N4      | N5      |         |         |         |         | N6      | N7      | N8      | N9      | N0      |   F12   | 
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | MINUS   | EQUAL   | LBKT    | RBKT    | BSLH    |   GRAVE |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | UNDER   | PLUS    | LBRC    | RBRC    | PIPE    | TILDE   |         
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |
 
             bindings = <
 &kp GRAVE  &kp F1     &kp F2     &kp F3       &kp F4    &kp F5                       &kp F6     &kp F7    &kp F8           &kp F9     &kp F10   &kp F11
-&mo 2      &kp N1     &kp N2     &kp N3       &kp N4    &kp N5                       &kp N6     &kp N7    &kp N8           &kp N9     &kp N0    &kp F12
+&trans     &kp EXCL   &kp AT     &kp HASH     &kp DLLR  &kp PRCNT                    &kp CARET  &kp AMPS  &kp ASTRK        &kp LPAR   &kp RPAR  &kp F12
 &trans     &trans     &trans     &trans       &trans    &trans                       &kp MINUS  &kp EQUAL &kp LBKT         &kp RBKT   &kp BSLH  &kp GRAVE
 &trans     &trans     &trans     &trans       &trans    &trans     &trans    &trans  &kp UNDER  &kp PLUS  &kp LBRC         &kp RBRC   &kp PIPE  &kp TILDE
                       &trans     &trans       &trans    &trans     &trans    &trans  &trans     &trans    &trans           &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
         num_layer {
             display-name = "NUM";
-            // ------------------------------------------------------------------------------------------------------------
-            // |       |  F1 |  F2 |  F3  |  F4  |  F5  |                   |  F6  |  F7   |  F8   |  F9  |  F10  |  F11  |
-            // |       |   1 |   2 |   3  |   4  |   5  |                   |   6  |   7   |   8   |   9  |    0  |  F12  |
-            // |       |     |     |      |      |      |                   │   -  │   =   │   [   │   ]  │   \   │   `   │
-            // |       |     |     |      |      |      |        |  |       │   _  │   +   │   {   │   }  │   |   │   ~   │
-            //               |     |      |      |      |        |  |       |      |       |       |      |
+            
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | N7      | N8      | N9      | TRANS   |         |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | N4      | N5      | N6      | TRANS   |         |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | N0      | N1      | N2      | N3      | DOT     | TRANS   |         |
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |
 
             bindings = <
-&trans     &trans     &trans     &trans       &trans    &trans                       &trans     &trans    &trans           &trans     &trans    &trans
-&trans     &trans     &trans     &trans       &trans    &trans                       &trans     &kp N7    &kp N8           &kp N9     &trans    &trans
-&trans     &trans     &trans     &trans       &trans    &trans                       &trans     &kp N4    &kp N5           &kp N6   &trans  &trans
-&trans     &trans     &trans     &trans       &trans    &trans     &trans    &trans  &kp N0     &kp N1    &kp N2           &kp N3   &kp DOT  &trans
+&trans     &trans     &trans     &trans       &trans    &trans                       &none      &trans    &trans           &trans     &trans    &trans
+&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N7    &kp N8           &kp N9     &none    &trans
+&trans     &trans     &trans     &trans       &trans    &trans                       &none      &kp N4    &kp N5           &kp N6     &none    &trans
+&trans     &trans     &trans     &trans       &trans    &trans     &trans    &trans  &kp N0     &kp N1    &kp N2           &kp N3     &kp DOT   &trans
                       &trans     &trans       &trans    &trans     &trans    &trans  &trans     &trans    &trans           &trans
             >;
 
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
         
         // ------------------------------------------------------------------------------------------------------------
@@ -211,6 +211,12 @@
         // ------------------------------------------------------------------------------------------------------------
         mouse_layer {
             display-name = "MSE";
+            // ------------------------------------------------------------------------------------------------------------
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |  TRANS  |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | SCRL_L  | SCRL_D  | SCRL_U  | SCRL_R  | TRANS   |  TRANS  |
+            // | TRANS   | LCTRL   | RCLK    | MCLK    | LCLK    | TRANS   |         |         |         |         | MOVE_L  | MOVE_D  | MOVE_U  | MOVE_R  | TRANS   |  TRANS  |
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |  TRANS  |
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | LCLK    | MCLK    | RCLK    | TRANS   | TRANS   |         |         | 
             bindings = <
 &trans  &trans       &trans          &trans          &trans          &trans                                 &trans          &trans          &trans        &trans           &trans  &trans
 &trans  &trans       &trans          &trans          &trans          &trans                                 &msc SCRL_LEFT  &msc SCRL_DOWN  &msc SCRL_UP  &msc SCRL_RIGHT  &trans  &trans
@@ -218,7 +224,7 @@
 &trans  &trans       &trans          &trans          &trans          &trans     &trans        &trans        &trans          &trans          &trans        &trans           &trans  &trans
                      &trans          &trans          &trans          &trans     &trans        &mkp LCLK     &mkp MCLK       &mkp RCLK       &trans        &trans
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
 
         // ------------------------------------------------------------------------------------------------------------
@@ -226,6 +232,12 @@
         // ------------------------------------------------------------------------------------------------------------
         fun_layer {
             display-name = "FUN";
+            // ------------------------------------------------------------------------------------------------------------
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |        
+            // | TRANS   | F1      | F2      | F3      | F4      | F5      |         |         |         |         | F6      | F7      | F8      | F9      | F10     | TRANS   |         
+            // | TRANS   | F11     | F12     | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | RSHIFT  | RALT    | RGUI    | RCTRL   | TRANS   |         
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |        
             bindings = <
 &trans  &trans       &trans       &trans       &trans        &trans                                 &trans    &trans          &trans        &trans        &trans   &trans
 &trans  &kp F1       &kp F2       &kp F3       &kp F4        &kp F5                                 &kp F6    &kp F7          &kp F8        &kp F9        &kp F10  &trans
@@ -233,7 +245,7 @@
 &trans  &trans       &trans       &trans       &trans        &trans     &trans        &trans        &trans    &trans          &trans        &trans        &trans   &trans
                      &trans       &trans       &trans        &trans     &trans        &trans        &trans    &trans          &trans        &trans
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
 
         // ------------------------------------------------------------------------------------------------------------
@@ -241,6 +253,12 @@
         // ------------------------------------------------------------------------------------------------------------
         media_layer {
             display-name = "MED";
+            // ---------------------------------------------------------------- -------------------------------------------
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |
+            // | TRANS   | BT1     | BT2     | BT3     | BT4     | BT_CLR  |         |         |         |         | TRANS   | VOL_DN  | VOL_UP  | MUTE    | TRANS   | TRANS   |         
+            // | TRANS   | LCTRL   | LGUI    | LALT    | LSHIFT  | TRANS   |         |         |         |         | C_PREV  | C_PP    | C_PLAY  | C_NEXT  | TRANS   | TRANS   |         
+            // | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         
+            // |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         | TRANS   | TRANS   | TRANS   | TRANS   | TRANS   |         |         |         
             bindings = <
 &trans  &trans       &trans       &trans       &trans        &trans                                 &trans    &trans        &trans        &trans      &trans  &trans
 &trans  &bt BT_SEL 0 &bt BT_SEL 1 &bt BT_SEL 2 &bt BT_SEL 3  &bt BT_CLR                             &trans    &kp C_VOL_DN  &kp C_VOL_UP  &kp C_MUTE  &trans  &trans
@@ -248,7 +266,7 @@
 &trans  &trans       &trans       &trans       &trans        &trans     &trans        &trans        &trans    &trans        &trans        &trans      &trans  &trans
                      &trans       &trans       &trans        &trans     &trans        &trans        &trans    &trans        &trans        &trans
             >;
-            sensor-bindings = <&inc_dec_kp C_VOL_UP C_VOL_DN &inc_dec_kp PG_UP PG_DN>;
+            sensor-bindings = <&inc_dec_kp C_VOL_DN C_VOL_UP &inc_dec_kp PG_DN PG_UP>;
         };
     };
 };

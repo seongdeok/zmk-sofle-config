@@ -351,4 +351,34 @@ clean: clean_zmk
 clean_all: clean clean_firmware
 	@echo "cleaning all"
 
+.PHONY: sofle
+
+sofle:
+	docker run --rm \
+		--workdir /workdir \
+		--volume "${PWD}:/workdir:Z" \
+		${zmk_image} \
+		sh -lc '\
+			set -eu; \
+			git config --global --add safe.directory "*"; \
+			export ZEPHYR_BASE=/workdir/zephyr; \
+			export Zephyr_DIR=/workdir/zephyr/share/zephyr-package; \
+			export CMAKE_PREFIX_PATH=/workdir/zephyr/share/zephyr-package; \
+			west build /workdir/zmk/app \
+				--build-dir /workdir/build-sofle-left \
+				--board nice_nano_v2 \
+				-- \
+				-DSHIELD="sofle_left nice_oled" \
+				-DZMK_CONFIG=/workdir/config; \
+			cp /workdir/build-sofle-left/zephyr/zmk.uf2 \
+				/workdir/firmware/nice_sofle_left_oled.uf2; \
+			west build /workdir/zmk/app \
+				--build-dir /workdir/build-sofle-right \
+				--board nice_nano_v2 \
+				-- \
+				-DSHIELD="sofle_right nice_oled" \
+				-DZMK_CONFIG=/workdir/config; \
+			cp /workdir/build-sofle-right/zephyr/zmk.uf2 \
+				/workdir/firmware/nice_sofle_right_oled.uf2'
+
 # vim: set ft=make fdm=marker:

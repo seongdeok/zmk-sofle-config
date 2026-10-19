@@ -35,3 +35,14 @@ $S watch                 # 레이어 바꾸면 실시간 출력
 $S layer 1; $S bt 2; $S out toggle
 $S status --json
 ```
+
+## 데스크탑 앱 (Tauri v2, Linux/macOS/Windows)
+
+```sh
+cd gaggskey/host/apps/gaggskey-app
+npm install
+npx tauri dev                    # 개발 (핫리로드)
+npx tauri build                  # 배포 번들 (deb/AppImage, dmg, msi)
+```
+
+트레이에 상주합니다. 창을 닫으면 트레이로 숨고, 트레이 메뉴의 "종료"로 끝납니다.
