@@ -8,7 +8,7 @@ use std::time::Duration;
 use hidapi::{HidApi, HidDevice};
 use gaggskey_proto::{self as proto, Frame, FRAME_SIZE};
 
-use crate::{Error, Result, Transport};
+use crate::{Device, Error, Result, Transport, Via};
 
 pub struct UsbTransport {
     dev: HidDevice,
@@ -16,11 +16,26 @@ pub struct UsbTransport {
 }
 
 impl UsbTransport {
-    pub fn open() -> Result<Self> {
+    /// Every keyboard exposing the GaggsKey vendor interface.
+    pub fn list() -> Vec<Device> {
+        let Ok(api) = HidApi::new() else { return Vec::new() };
+        api.device_list()
+            .filter(|d| d.usage_page() == proto::HID_USAGE_PAGE && d.usage() == proto::HID_USAGE)
+            .map(|d| Device {
+                name: d.product_string().unwrap_or("ZMK keyboard").to_string(),
+                via: Via::Usb,
+                id: d.path().to_string_lossy().into_owned(),
+            })
+            .collect()
+    }
+
+    /// Open a specific interface by hidapi path, or the first one found.
+    pub fn open(path: Option<&str>) -> Result<Self> {
         let api = HidApi::new().map_err(|e| Error::Io(e.to_string()))?;
         let info = api
             .device_list()
-            .find(|d| d.usage_page() == proto::HID_USAGE_PAGE && d.usage() == proto::HID_USAGE)
+            .filter(|d| d.usage_page() == proto::HID_USAGE_PAGE && d.usage() == proto::HID_USAGE)
+            .find(|d| path.is_none_or(|p| d.path().to_string_lossy() == p))
             .ok_or(Error::NotFound("no USB interface with usage page 0xFF0B"))?;
         let path = info.path().to_string_lossy().into_owned();
         let dev = info.open_device(&api).map_err(|e| {

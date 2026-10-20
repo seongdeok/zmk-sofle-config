@@ -43,8 +43,16 @@ export interface Keymap {
   layers: KeyLabel[][];
 }
 
+export interface Device {
+  name: string;
+  via: "usb" | "ble";
+  id: string;
+}
+
 export interface Snapshot {
   connected: boolean;
+  devices: Device[];
+  selected: string | null;
   via: string | null;
   hello: Hello | null;
   layer_names: string[];

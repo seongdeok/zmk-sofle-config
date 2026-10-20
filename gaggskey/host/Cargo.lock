@@ -1146,6 +1146,7 @@ dependencies = [
  "futures",
  "gaggskey-proto",
  "hidapi",
+ "serde",
  "thiserror 2.0.21",
  "tokio",
  "uuid",
