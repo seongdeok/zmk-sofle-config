@@ -69,6 +69,7 @@ pub fn list_devices() -> Vec<Device> {
             out.push(d);
         }
     }
+    out.sort_by(|a, b| a.name.cmp(&b.name));
     out
 }
 

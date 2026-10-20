@@ -21,6 +21,9 @@ const RETRY: Duration = Duration::from_secs(2);
 const POLL: Duration = Duration::from_millis(50);
 /// How often a connected session re-enumerates USB for newly plugged keyboards.
 const USB_RESCAN: Duration = Duration::from_secs(2);
+/// Full rescan incl. BLE (~0.3 s scan), so BLE keyboards that (re)connect to
+/// the OS show up while another keyboard is in use.
+const FULL_RESCAN: Duration = Duration::from_secs(10);
 
 #[derive(Debug, Clone, Default, Serialize)]
 pub struct Snapshot {
@@ -46,7 +49,15 @@ type Reply = Sender<Result<Vec<u8>, String>>;
 pub struct Manager {
     cmds: Sender<(Command, Reply)>,
     snap: Arc<Mutex<Snapshot>>,
-    want: Arc<Mutex<Option<String>>>,
+    want: Arc<Mutex<Want>>,
+}
+
+/// Which keyboard to connect to. `explicit` = picked by the user; otherwise
+/// it is just the last auto-picked one and a failing keyboard may be skipped.
+#[derive(Default)]
+struct Want {
+    name: Option<String>,
+    explicit: bool,
 }
 
 impl Manager {
@@ -54,7 +65,7 @@ impl Manager {
     pub fn spawn(on_change: impl Fn(&Snapshot) + Send + 'static) -> Self {
         let (tx, rx) = mpsc::channel();
         let snap = Arc::new(Mutex::new(Snapshot::default()));
-        let want = Arc::new(Mutex::new(None));
+        let want = Arc::new(Mutex::new(Want::default()));
         let (s, w) = (snap.clone(), want.clone());
         thread::Builder::new()
             .name("gaggskey-core".into())
@@ -66,7 +77,7 @@ impl Manager {
     /// Switch to the keyboard with this name. The current session ends and
     /// the worker reconnects to it (within ~50 ms when connected).
     pub fn select(&self, name: String) {
-        *self.want.lock().unwrap() = Some(name);
+        *self.want.lock().unwrap() = Want { name: Some(name), explicit: true };
     }
 
     pub fn snapshot(&self) -> Snapshot {
@@ -84,7 +95,7 @@ impl Manager {
 fn worker(
     rx: Receiver<(Command, Reply)>,
     snap: Arc<Mutex<Snapshot>>,
-    want: Arc<Mutex<Option<String>>>,
+    want: Arc<Mutex<Want>>,
     on_change: impl Fn(&Snapshot),
 ) {
     let publish = |f: &dyn Fn(&mut Snapshot)| {
@@ -99,7 +110,7 @@ fn worker(
             Err(e) => {
                 if e == SWITCH {
                     // Drop the old keyboard's data, then reconnect right away.
-                    let next = want.lock().unwrap().clone();
+                    let next = want.lock().unwrap().name.clone();
                     publish(&|s| {
                         *s = Snapshot {
                             devices: s.devices.clone(),
@@ -146,16 +157,24 @@ fn worker(
 /// Session-ending reason meaning "user picked another keyboard".
 const SWITCH: &str = "switching keyboard";
 
-fn want_changed(want: &Mutex<Option<String>>, snap: &Mutex<Snapshot>) -> bool {
-    let w = want.lock().unwrap().clone();
-    w.is_some() && w != snap.lock().unwrap().selected
+fn want_changed(want: &Mutex<Want>, snap: &Mutex<Snapshot>) -> bool {
+    let w = want.lock().unwrap();
+    w.explicit && w.name.is_some() && w.name != snap.lock().unwrap().selected
 }
 
-/// Pick the wanted keyboard by name, else the first found.
-fn pick(devices: &[Device], want: Option<&str>) -> Option<Device> {
-    want.and_then(|w| devices.iter().find(|d| d.name == w))
-        .or_else(|| devices.first())
-        .cloned()
+/// Connection order: the wanted keyboard first, then (unless the user picked
+/// it explicitly) the others, so one broken keyboard does not block the rest.
+fn candidates(devices: &[Device], want: &Want) -> Vec<Device> {
+    let mut out: Vec<Device> = Vec::new();
+    if let Some(d) = want.name.as_ref().and_then(|w| devices.iter().find(|d| &d.name == w)) {
+        out.push(d.clone());
+        if want.explicit {
+            return out;
+        }
+    }
+    let rest: Vec<Device> = devices.iter().filter(|d| !out.contains(d)).cloned().collect();
+    out.extend(rest);
+    out
 }
 
 /// Keep BLE entries from the last full scan, refresh USB ones.
@@ -170,24 +189,33 @@ fn merge_usb(prev: &[Device], usb: Vec<Device>) -> Vec<Device> {
 }
 
 /// One connected session. Ok(()) = shut down, Err = reconnect.
-fn session(rx: &Receiver<(Command, Reply)>, want: &Mutex<Option<String>>, publish: Publish) -> Result<(), String> {
+fn session(rx: &Receiver<(Command, Reply)>, want: &Mutex<Want>, publish: Publish) -> Result<(), String> {
     let devices = gaggskey_link::list_devices();
-    let wanted = want.lock().unwrap().clone();
-    let Some(dev) = pick(&devices, wanted.as_deref()) else {
-        publish(&|s| {
-            s.devices = devices.clone();
-            s.selected = wanted.clone();
-        });
-        return Err("no keyboard with GaggsKey found (USB or BLE)".into());
-    };
-    // The selection follows what we actually connect to.
-    *want.lock().unwrap() = Some(dev.name.clone());
+    let order = candidates(&devices, &want.lock().unwrap());
+    let wanted = want.lock().unwrap().name.clone();
     publish(&|s| {
         s.devices = devices.clone();
-        s.selected = Some(dev.name.clone());
+        s.selected = wanted.clone();
     });
-    let mut c = Client::open(&dev).map_err(|e| e.to_string())?;
-    let hello = c.hello().map_err(|e| e.to_string())?;
+    let mut last_err = String::from("no keyboard with GaggsKey found (USB or BLE)");
+    let mut opened = None;
+    for d in order {
+        match Client::open(&d).and_then(|mut c| c.hello().map(|h| (c, h))) {
+            Ok((c, h)) => {
+                opened = Some((d, c, h));
+                break;
+            }
+            Err(e) => last_err = format!("{}: {e}", d.name),
+        }
+    }
+    let Some((dev, mut c, hello)) = opened else { return Err(last_err) };
+    // The selection follows what we actually connected to.
+    {
+        let mut w = want.lock().unwrap();
+        if w.name.as_deref() != Some(dev.name.as_str()) {
+            *w = Want { name: Some(dev.name.clone()), explicit: false };
+        }
+    }
     let names = c.layer_names(hello.layers);
     let state = c.state().map_err(|e| e.to_string())?;
     let via = c.describe();
@@ -212,13 +240,25 @@ fn session(rx: &Receiver<(Command, Reply)>, want: &Mutex<Option<String>>, publis
 
     let mut known = devices.clone();
     let mut rescan = Instant::now() + USB_RESCAN;
+    let mut full_rescan = Instant::now() + FULL_RESCAN;
     loop {
-        if want.lock().unwrap().as_deref() != Some(dev.name.as_str()) {
+        if want.lock().unwrap().name.as_deref() != Some(dev.name.as_str()) {
             return Err(SWITCH.into());
         }
         if Instant::now() >= rescan {
             rescan = Instant::now() + USB_RESCAN;
-            let merged = merge_usb(&known, gaggskey_link::usb::UsbTransport::list());
+            let merged = if Instant::now() >= full_rescan {
+                full_rescan = Instant::now() + FULL_RESCAN;
+                let mut all = gaggskey_link::list_devices();
+                // The connected keyboard may not show up in its own scan
+                // (e.g. BLE link busy); never drop it from the list.
+                if !all.iter().any(|d| d.name == dev.name) {
+                    all.push(dev.clone());
+                }
+                all
+            } else {
+                merge_usb(&known, gaggskey_link::usb::UsbTransport::list())
+            };
             if merged != known {
                 known = merged;
                 publish(&|s| s.devices = known.clone());
