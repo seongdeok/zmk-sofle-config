@@ -45,6 +45,33 @@ fn errno_str(e: i8) -> String {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(rename_all = "lowercase")]
+pub enum Via {
+    Usb,
+    Ble,
+}
+
+/// A keyboard reachable over one transport. `id` is the hidapi path (USB) or
+/// the platform peripheral id (BLE).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct Device {
+    pub name: String,
+    pub via: Via,
+    pub id: String,
+}
+
+/// All reachable keyboards, one entry per keyboard name (USB preferred over BLE).
+pub fn list_devices() -> Vec<Device> {
+    let mut out = usb::UsbTransport::list();
+    for d in ble::BleTransport::list() {
+        if !out.iter().any(|o| o.name == d.name) {
+            out.push(d);
+        }
+    }
+    out
+}
+
 /// Moves whole frames. Implementations must be usable from one thread at a time.
 pub trait Transport: Send {
     fn send(&mut self, frame: &Frame) -> Result<()>;
@@ -65,11 +92,19 @@ impl Client {
         Self { t, seq: 0, pending_pushes: VecDeque::new(), timeout: Duration::from_secs(1) }
     }
 
+    /// Connect to one specific device.
+    pub fn open(d: &Device) -> Result<Self> {
+        Ok(match d.via {
+            Via::Usb => Self::new(Box::new(usb::UsbTransport::open(Some(&d.id))?)),
+            Via::Ble => Self::new(Box::new(ble::BleTransport::open(Some(&d.id))?)),
+        })
+    }
+
     /// Connect over the first available transport: USB first, then BLE.
     pub fn open_any() -> Result<Self> {
-        match usb::UsbTransport::open() {
+        match usb::UsbTransport::open(None) {
             Ok(t) => Ok(Self::new(Box::new(t))),
-            Err(usb_err) => match ble::BleTransport::open() {
+            Err(usb_err) => match ble::BleTransport::open(None) {
                 Ok(t) => Ok(Self::new(Box::new(t))),
                 Err(ble_err) => Err(Error::Io(format!("USB: {usb_err}; BLE: {ble_err}"))),
             },

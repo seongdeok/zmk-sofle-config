@@ -20,7 +20,7 @@ use gaggskey_proto::{self as proto, Frame};
 use tokio::sync::mpsc as amp;
 use uuid::Uuid;
 
-use crate::{Error, Result, Transport};
+use crate::{Device, Error, Result, Transport, Via};
 
 pub struct BleTransport {
     tx: amp::UnboundedSender<Frame>,
@@ -32,8 +32,14 @@ fn uuid(s: &str) -> Uuid {
     Uuid::parse_str(s).expect("valid uuid")
 }
 
-async fn find(manager: &Manager) -> std::result::Result<Peripheral, String> {
+/// Name hints for system-connected keyboards whose cached services do not
+/// list the GaggsKey UUID yet.
+const NAME_HINTS: [&str; 4] = ["Gaggs", "Sofle", "Kyria", "Corne"];
+
+/// Every OS-connected peripheral that looks like a GaggsKey keyboard.
+async fn candidates(manager: &Manager) -> std::result::Result<Vec<(Peripheral, String)>, String> {
     let service = uuid(proto::BT_SERVICE_UUID);
+    let mut out: Vec<(Peripheral, String)> = Vec::new();
     for adapter in manager.adapters().await.map_err(|e| e.to_string())? {
         // CoreBluetooth reports system-connected peripherals as disconnected
         // until this app calls connect(), which reuses the OS link.
@@ -47,7 +53,8 @@ async fn find(manager: &Manager) -> std::result::Result<Peripheral, String> {
         {
             for p in peripherals {
                 if p.is_connected().await.unwrap_or(false) || p.connect().await.is_ok() {
-                    return Ok(p);
+                    let name = p.properties().await.ok().flatten().and_then(|pr| pr.local_name).unwrap_or_default();
+                    out.push((p, name));
                 }
             }
         }
@@ -57,25 +64,39 @@ async fn find(manager: &Manager) -> std::result::Result<Peripheral, String> {
         tokio::time::sleep(Duration::from_millis(300)).await;
         let _ = adapter.stop_scan().await;
         for p in adapter.peripherals().await.map_err(|e| e.to_string())? {
+            if out.iter().any(|(q, _)| q.id() == p.id()) {
+                continue;
+            }
             let Ok(Some(props)) = p.properties().await else { continue };
+            let name = props.local_name.clone().unwrap_or_default();
             let advertises = props.services.contains(&service);
-            let named = props.local_name.as_deref().is_some_and(|n| n.contains("Sofle"));
+            let named = NAME_HINTS.iter().any(|h| name.contains(h));
             if (advertises || named) && p.is_connected().await.unwrap_or(false) {
-                return Ok(p);
+                out.push((p, name));
             }
         }
     }
-    Err("no connected keyboard exposing the GaggsKey GATT service".into())
+    Ok(out)
+}
+
+async fn find(manager: &Manager, want: Option<&str>) -> std::result::Result<Peripheral, String> {
+    candidates(manager)
+        .await?
+        .into_iter()
+        .find(|(p, _)| want.is_none_or(|w| p_addr(p) == w))
+        .map(|(p, _)| p)
+        .ok_or_else(|| "no connected keyboard exposing the GaggsKey GATT service".into())
 }
 
 async fn run(
+    want: Option<String>,
     ready: mpsc::Sender<std::result::Result<String, String>>,
     mut out: amp::UnboundedReceiver<Frame>,
     inbox: mpsc::Sender<std::result::Result<Vec<u8>, String>>,
 ) {
     let setup = async {
         let manager = Manager::new().await.map_err(|e| e.to_string())?;
-        let p = find(&manager).await?;
+        let p = find(&manager, want.as_deref()).await?;
         p.discover_services().await.map_err(|e| e.to_string())?;
         let chrc = p
             .characteristics()
@@ -122,7 +143,27 @@ fn p_addr(p: &Peripheral) -> String {
 }
 
 impl BleTransport {
-    pub fn open() -> Result<Self> {
+    /// OS-connected keyboards (names as advertised). Blocks ~0.3 s for a scan.
+    pub fn list() -> Vec<Device> {
+        let job = thread::spawn(|| {
+            let rt = tokio::runtime::Builder::new_current_thread().enable_all().build().ok()?;
+            rt.block_on(async {
+                let manager = Manager::new().await.ok()?;
+                let found = candidates(&manager).await.ok()?;
+                Some(
+                    found
+                        .into_iter()
+                        .map(|(p, name)| Device { name, via: Via::Ble, id: p_addr(&p) })
+                        .collect::<Vec<_>>(),
+                )
+            })
+        });
+        job.join().ok().flatten().unwrap_or_default()
+    }
+
+    /// Open the peripheral with platform id `id`, or the first candidate.
+    pub fn open(id: Option<&str>) -> Result<Self> {
+        let want = id.map(str::to_string);
         let (ready_tx, ready_rx) = mpsc::channel();
         let (out_tx, out_rx) = amp::unbounded_channel();
         let (in_tx, in_rx) = mpsc::channel();
@@ -131,7 +172,7 @@ impl BleTransport {
             .spawn(move || {
                 let rt = tokio::runtime::Builder::new_current_thread().enable_all().build();
                 match rt {
-                    Ok(rt) => rt.block_on(run(ready_tx, out_rx, in_tx)),
+                    Ok(rt) => rt.block_on(run(want, ready_tx, out_rx, in_tx)),
                     Err(e) => {
                         let _ = ready_tx.send(Err(e.to_string()));
                     }

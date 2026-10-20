@@ -10,12 +10,17 @@ struct Cli {
     /// Print JSON (one object per line for `watch`)
     #[arg(long, global = true)]
     json: bool,
+    /// Keyboard to talk to, by name (see `gkctl devices`); default: first found
+    #[arg(long, short = 'd', global = true)]
+    device: Option<String>,
     #[command(subcommand)]
     cmd: Cmd,
 }
 
 #[derive(Subcommand)]
 enum Cmd {
+    /// List reachable keyboards (USB and BLE)
+    Devices,
     /// Keyboard identity and capabilities
     Hello,
     /// Current state, one shot
@@ -81,10 +86,30 @@ fn emit<T: serde::Serialize>(json: bool, v: &T, text: impl FnOnce() -> String) {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let mut c = Client::open_any()?;
     let json = cli.json;
+    if let Cmd::Devices = cli.cmd {
+        let list = gaggskey_link::list_devices();
+        emit(json, &list, || {
+            list.iter()
+                .map(|d| format!("{:<20} {:?}  {}", d.name, d.via, d.id))
+                .collect::<Vec<_>>()
+                .join("\n")
+        });
+        return Ok(());
+    }
+    let mut c = match &cli.device {
+        Some(name) => {
+            let d = gaggskey_link::list_devices()
+                .into_iter()
+                .find(|d| &d.name == name)
+                .ok_or_else(|| anyhow::anyhow!("keyboard {name:?} not found (try `gkctl devices`)"))?;
+            Client::open(&d)?
+        }
+        None => Client::open_any()?,
+    };
 
     let cmd = match cli.cmd {
+        Cmd::Devices => unreachable!(),
         Cmd::Hello => {
             let h = c.hello()?;
             let via = c.describe();

@@ -41,7 +41,16 @@
 <main>
   <header>
     <div class="title">
-      <h1>{hello?.name ?? "GaggsKey"}</h1>
+      {#if (snap?.devices.length ?? 0) > 1}
+        <select class="kb" value={snap?.selected ?? ""} disabled={busy}
+                onchange={(e) => invoke("select_device", { name: (e.currentTarget as HTMLSelectElement).value })}>
+          {#each snap!.devices as d}
+            <option value={d.name}>{d.name} ({d.via.toUpperCase()})</option>
+          {/each}
+        </select>
+      {:else}
+        <h1>{hello?.name ?? snap?.selected ?? "GaggsKey"}</h1>
+      {/if}
       {#if snap?.connected}
         <span class="badge ok">{snap.via?.startsWith("usb") ? "USB" : "BLE"} 연결됨</span>
       {:else}

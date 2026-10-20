@@ -61,3 +61,5 @@ details summary { cursor: pointer; color: var(--muted); }
 .danger { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
 .danger button:hover:not(:disabled) { border-color: var(--low); color: var(--low); }
 .toast { position: fixed; bottom: 14px; left: 20px; right: 20px; background: var(--low); color: #fff; padding: 10px 12px; border-radius: 8px; font-size: 13px; }
+select.kb { font: inherit; font-size: 16px; font-weight: 700; color: var(--fg); background: var(--card);
+  border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; cursor: pointer; }

@@ -59,6 +59,11 @@ fn get_snapshot(mgr: State<'_, Manager>) -> Snapshot {
 }
 
 #[tauri::command]
+fn select_device(mgr: State<'_, Manager>, name: String) {
+    mgr.select(name);
+}
+
+#[tauri::command]
 async fn send_command(mgr: State<'_, Manager>, command: UiCommand) -> Result<(), String> {
     mgr.command(command.into(), Duration::from_secs(3)).map(|_| ())
 }
@@ -68,10 +73,11 @@ fn summary(s: &Snapshot) -> String {
     let Some(st) = s.state.as_ref().filter(|_| s.connected) else {
         return "GaggsKey — disconnected".into();
     };
+    let kb = s.selected.as_deref().filter(|_| s.devices.len() > 1).map(|n| format!("{n} · ")).unwrap_or_default();
     let layer = s.layer_names.get(st.layer as usize).filter(|n| !n.is_empty()).cloned()
         .unwrap_or_else(|| format!("L{}", st.layer));
     let pct = |v: Option<u8>| v.map_or("--".into(), |v| format!("{v}%"));
-    format!("{layer} · L {} R {}", pct(st.battery.left), pct(st.battery.right))
+    format!("{kb}{layer} · L {} R {}", pct(st.battery.left), pct(st.battery.right))
 }
 
 fn on_snapshot(app: &AppHandle, s: &Snapshot) {
@@ -136,7 +142,7 @@ fn main() {
                 let _ = w.hide();
             }
         })
-        .invoke_handler(tauri::generate_handler![get_snapshot, send_command])
+        .invoke_handler(tauri::generate_handler![get_snapshot, send_command, select_device])
         .run(tauri::generate_context!())
         .expect("error while running GaggsKey");
 }
