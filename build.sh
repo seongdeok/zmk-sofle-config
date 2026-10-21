@@ -7,15 +7,14 @@
 #   ./build.sh sofle right
 #   ./build.sh reset              # settings_reset
 #
-# Keymaps are regenerated first (keymap/gen.py): config/corne.keymap is the base,
-# keymap/<board>.toml holds each other keyboard's differences.
+# Keymaps: shared keys live in config/keymap_common.dtsi; config/<board>.keymap
+# only places them on the board and adds that board's extra keys.
 set -euo pipefail
 cd "$(dirname "$0")"
 IMAGE=${ZMK_IMAGE:-zmkfirmware/zmk-dev-arm:3.5}
 KB=${1:-all}
 SIDE=${2:-all}
 
-python3 keymap/gen.py
 mkdir -p firmware
 
 run() {

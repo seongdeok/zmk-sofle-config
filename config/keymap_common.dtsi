@@ -1,0 +1,303 @@
+/*
+ * 세 키보드(Corne · Sofle · Kyria) 공통 키맵 — 키는 여기서만 고친다.
+ *
+ * 레이어마다 Corne 모양(3x6 + 엄지 3)의 42키를 그대로 적는다.
+ * 각 보드 keymap(config/<board>.keymap)은 이 42키를 자기 물리 배열에 놓고,
+ * 보드에만 있는 키(Sofle 숫자열·엔코더, Kyria 안쪽 키·엄지 등)만 따로 적는다.
+ *
+ * 쉼표(,)는 왼손/오른손 구분이다. 행 안의 키 수는 반드시 6개.
+ * 위 그림은 사람이 보는 용도라 키를 바꾸면 그림도 같이 고친다.
+ *
+ * 보드 keymap은 이 파일 include 전에 LEFT_KEYS / RIGHT_KEYS / LEFT_THUMBS /
+ * RIGHT_THUMBS(키 위치 번호)를 정의해야 한다 (홈로우 모드 hold-trigger용).
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/mouse.h>
+
+/* ---- 별칭 ------------------------------------------------------------- */
+
+#define ___      &trans
+#define XXX      &none
+
+/* 홈로우 모드 (탭 = 글자, 홀드 = modifier / 레이어) */
+#define HM_ESC   &hmr_mo 1 ESC            /* Esc  / NAV */
+#define HM_A     &hmr_l LCTRL A           /* A    / Ctrl */
+#define HM_S     &hmr_l LEFT_WIN S        /* S    / Gui */
+#define HM_D     &hmr_l LEFT_ALT D        /* D    / Alt */
+#define HM_F     &hms_l LEFT_SHIFT F      /* F    / Shift */
+#define HM_J     &hms_r LEFT_SHIFT J      /* J    / Shift */
+#define HM_K     &hmr_r LEFT_ALT K        /* K    / Alt */
+#define HM_L     &hmr_r LEFT_GUI L        /* L    / Gui */
+#define HM_SCLN  &hmr_r LEFT_CONTROL SEMI /* ;    / Ctrl */
+
+/* 엄지 레이어 탭 (탭 = 키, 홀드 = 레이어) */
+#define LT_ESC   &lt_th 1 ESC             /* Esc  / NAV */
+#define LT_BSPC  &lt_th 2 BSPC            /* Bspc / SYM */
+#define LT_TAB   &lt_th 3 TAB             /* Tab  / NUM */
+#define LT_SPC   &lt_th 4 SPACE           /* Spc  / MSE */
+#define LT_RET   &lt_th 5 RET             /* Ret  / FUN */
+#define LT_DEL   &lt_th 6 DEL             /* Del  / MED */
+
+/* modifier */
+#define L_CTL    &kp LCTRL
+#define L_SFT    &kp LEFT_SHIFT
+#define L_ALT    &kp LEFT_ALT
+#define L_GUI    &kp LGUI
+#define R_CTL    &kp RCTRL
+#define R_SFT    &kp RIGHT_SHIFT
+#define R_ALT    &kp RIGHT_ALT
+#define R_GUI    &kp RIGHT_GUI
+#define A_Z      &kp LA(Z)
+#define A_C      &kp LA(C)
+#define A_V      &kp LA(V)
+
+/* 블루투스 */
+#define BT0      &bt BT_SEL 0
+#define BT1      &bt BT_SEL 1
+#define BT2      &bt BT_SEL 2
+#define BT3      &bt BT_SEL 3
+#define BT4      &bt BT_SEL 4
+#define BTCLR    &bt BT_CLR
+
+/* 마우스: MS = 커서 이동, SC = 휠, CLK = 클릭 */
+#define MS_L     &mmv MOVE_LEFT
+#define MS_D     &mmv MOVE_DOWN
+#define MS_U     &mmv MOVE_UP
+#define MS_R     &mmv MOVE_RIGHT
+#define SC_L     &msc SCRL_LEFT
+#define SC_D     &msc SCRL_DOWN
+#define SC_U     &msc SCRL_UP
+#define SC_R     &msc SCRL_RIGHT
+#define CLK_L    &mkp LCLK
+#define CLK_M    &mkp MCLK
+#define CLK_R    &mkp RCLK
+
+/* 미디어 */
+#define VOL_DN   &kp C_VOL_DN
+#define VOL_UP   &kp C_VOL_UP
+#define MUTE     &kp C_MUTE
+#define PREV     &kp C_PREV
+#define NEXT     &kp C_NEXT
+#define PLAY     &kp C_PLAY
+#define PP       &kp C_PP
+
+/* ---- behaviors -------------------------------------------------------- */
+
+/ {
+    behaviors {
+        hmr: hmr {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMR";
+            bindings = <&kp>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <125>;
+            flavor = "tap-preferred";
+        };
+        hmr_l: hmr_l {
+            compatible = "zmk,behavior-hold-tap";
+            label = "LEFT_HMR";
+            bindings = <&kp>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
+            require-prior-idle-ms = <120>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <RIGHT_KEYS>;
+        };
+        hmr_r: hmr_r {
+            compatible = "zmk,behavior-hold-tap";
+            label = "RIGHT_HMR";
+            bindings = <&kp>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <200>;
+            quick-tap-ms = <190>;
+            require-prior-idle-ms = <120>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <LEFT_KEYS>;
+        };
+        hmr_mo: hmr_mo {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMR_MO";
+            bindings = <&mo>, <&kp>;
+
+            #binding-cells = <2>;
+            tapping-term-ms = <175>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <75>;
+            flavor = "tap-preferred";
+        };
+        /* F 키 전용 Shift: 반대쪽 손 + 왼손 엄지 전체(50~54)를 트리거로 인정 */
+        hms_l: homerow_mods_shift_left {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMS_L";
+            bindings = <&kp>, <&kp>;
+            #binding-cells = <2>;
+            tapping-term-ms = <180>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <50>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <RIGHT_KEYS LEFT_THUMBS>;
+        };
+
+        /* J 키 전용 Shift: 반대쪽 손 + 오른손 엄지 전체(55~59)를 트리거로 인정 */
+        hms_r: homerow_mods_shift_right {
+            compatible = "zmk,behavior-hold-tap";
+            label = "HMS_R";
+            bindings = <&kp>, <&kp>;
+            #binding-cells = <2>;
+            tapping-term-ms = <180>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <50>;
+            flavor = "balanced";
+            hold-trigger-key-positions = <LEFT_KEYS RIGHT_THUMBS>;
+        };
+        /* 엄지 전용 Dual-Role 키 (Tap: 일반 글쇠, Hold: 레이어 전환) */
+        lt_th: thumb_layer_tap {
+            compatible = "zmk,behavior-hold-tap";
+            label = "THUMB_LT";
+            bindings = <&mo>, <&kp>;
+            #binding-cells = <2>;
+            tapping-term-ms = <180>;
+            quick-tap-ms = <190>;
+            flavor = "tap-preferred";
+        };
+        mo_sk: momentary_sticky_layer {
+            compatible = "zmk,behavior-hold-tap";
+            label = "MO_SK";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            quick-tap-ms = <150>;
+            bindings = <&mo>, <&sk>;
+        };
+    };
+};
+
+/* ---- 레이어 (Corne 42키) --------------------------------------------- */
+
+/* BAS
+ * +-------+-------+-------+-------+-------+-------+   +-------+-------+-------+-------+-------+-------+
+ * |  Tab  |   Q   |   W   |   E   |   R   |   T   |   |   Y   |   U   |   I   |   O   |   P   |   \   |
+ * +-------+-------+-------+-------+-------+-------+   +-------+-------+-------+-------+-------+-------+
+ * |Esc/NAV| A/Ctl | S/Gui | D/Alt | F/Sft |   G   |   |   H   | J/Sft | K/Alt | L/Gui | ;/Ctl |   '   |
+ * +-------+-------+-------+-------+-------+-------+   +-------+-------+-------+-------+-------+-------+
+ * |  Sft  |   Z   |   X   |   C   |   V   |   B   |   |   N   |   M   |   ,   |   .   |   /   |   `   |
+ * +-------+-------+-------+-------+-------+-------+   +-------+-------+-------+-------+-------+-------+
+ *                         |Esc/NAV|Tab/NUM|Spc/MSE|   |Ret/FUN|Bsp/SYM|Del/MED|
+ *                         +-------+-------+-------+   +-------+-------+-------+
+ */
+#define BAS \
+    &kp TAB  &kp Q  &kp W  &kp E   &kp R   &kp T   ,  &kp Y   &kp U    &kp I      &kp O    &kp P     &kp BSLH   , \
+    HM_ESC   HM_A   HM_S   HM_D    HM_F    &kp G   ,  &kp H   HM_J     HM_K       HM_L     HM_SCLN   &kp SQT    , \
+    L_SFT    &kp Z  &kp X  &kp C   &kp V   &kp B   ,  &kp N   &kp M    &kp COMMA  &kp DOT  &kp FSLH  &kp GRAVE  , \
+                           LT_ESC  LT_TAB  LT_SPC  ,  LT_RET  LT_BSPC  LT_DEL
+
+/* NAV
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |     |     |     |     |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | Ctl | Gui | Alt | Sft |     |   |  ←  |  ↓  |  ↑  |  →  |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | A-z |     | A-c | A-v |     |   | Home| PgDn| PgUp| End |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   |     |     |     |
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define NAV \
+    ___  ___    ___    ___    ___    ___  ,  ___       ___            ___          ___        ___  ___  , \
+    ___  L_CTL  L_GUI  L_ALT  L_SFT  ___  ,  &kp LEFT  &kp DOWN       &kp UP       &kp RIGHT  ___  ___  , \
+    ___  A_Z    ___    A_C    A_V    ___  ,  &kp HOME  &kp PAGE_DOWN  &kp PAGE_UP  &kp END    ___  ___  , \
+                       ___    ___    ___  ,  ___       ___            ___
+
+/* SYM
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |  !  |  @  |  #  |  $  |  %  |   |  ^  |  &  |  *  |  (  |  )  | F12 |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  -  |  =  |  [  |  ]  |  \  |  `  |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  _  |  +  |  {  |  }  |  |  |  ~  |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   |     |     |     |
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define SYM \
+    ___  &kp EXCL  &kp AT  &kp HASH  &kp DLLR  &kp PRCNT  ,  &kp CARET  &kp AMPS   &kp ASTRK  &kp LPAR  &kp RPAR  &kp F12    , \
+    ___  ___       ___     ___       ___       ___        ,  &kp MINUS  &kp EQUAL  &kp LBKT   &kp RBKT  &kp BSLH  &kp GRAVE  , \
+    ___  ___       ___     ___       ___       ___        ,  &kp UNDER  &kp PLUS   &kp LBRC   &kp RBRC  &kp PIPE  &kp TILDE  , \
+                           ___       ___       ___        ,  ___        ___        ___
+
+/* NUM
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  x  |  7  |  8  |  9  |  x  |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  x  |  4  |  5  |  6  |  x  |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  0  |  1  |  2  |  3  |  .  |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   |     |     |     |
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define NUM \
+    ___  ___  ___  ___  ___  ___  ,  XXX     &kp N7  &kp N8  &kp N9  XXX      ___  , \
+    ___  ___  ___  ___  ___  ___  ,  XXX     &kp N4  &kp N5  &kp N6  XXX      ___  , \
+    ___  ___  ___  ___  ___  ___  ,  &kp N0  &kp N1  &kp N2  &kp N3  &kp DOT  ___  , \
+                   ___  ___  ___  ,  ___     ___     ___
+
+/* MSE
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |  W← |  W↓ |  W↑ |  W→ |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | Ctl | RClk| MClk| LClk|     |   |  M← |  M↓ |  M↑ |  M→ |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |     |     |     |     |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   | LClk| MClk| RClk|
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define MSE \
+    ___  ___    ___    ___    ___    ___  ,  SC_L   SC_D   SC_U   SC_R  ___  ___  , \
+    ___  L_CTL  CLK_R  CLK_M  CLK_L  ___  ,  MS_L   MS_D   MS_U   MS_R  ___  ___  , \
+    ___  ___    ___    ___    ___    ___  ,  ___    ___    ___    ___   ___  ___  , \
+                       ___    ___    ___  ,  CLK_L  CLK_M  CLK_R
+
+/* FUN
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |  F1 |  F2 |  F3 |  F4 |  F5 |   |  F6 |  F7 |  F8 |  F9 | F10 |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | F11 | F12 |     |     |     |   |     | Sft | Alt | Gui | Ctl |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |     |     |     |     |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   |     |     |     |
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define FUN \
+    ___  &kp F1   &kp F2   &kp F3  &kp F4  &kp F5  ,  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10  ___  , \
+    ___  &kp F11  &kp F12  ___     ___     ___     ,  ___     R_SFT   R_ALT   R_GUI   R_CTL    ___  , \
+    ___  ___      ___      ___     ___     ___     ,  ___     ___     ___     ___     ___      ___  , \
+                           ___     ___     ___     ,  ___     ___     ___
+
+/* MED
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | BT0 | BT1 | BT2 | BT3 |BTclr|   |     | Vol-| Vol+| Mute|     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     | Ctl | Gui | Alt | Sft |     |   | Prev| P/P | Play| Next|     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ * |     |     |     |     |     |     |   |     |     |     |     |     |     |
+ * +-----+-----+-----+-----+-----+-----+   +-----+-----+-----+-----+-----+-----+
+ *                   |     |     |     |   |     |     |     |
+ *                   +-----+-----+-----+   +-----+-----+-----+
+ */
+#define MED \
+    ___  BT0    BT1    BT2    BT3    BTCLR  ,  ___   VOL_DN  VOL_UP  MUTE  ___  ___  , \
+    ___  L_CTL  L_GUI  L_ALT  L_SFT  ___    ,  PREV  PP      PLAY    NEXT  ___  ___  , \
+    ___  ___    ___    ___    ___    ___    ,  ___   ___     ___     ___   ___  ___  , \
+                       ___    ___    ___    ,  ___   ___     ___

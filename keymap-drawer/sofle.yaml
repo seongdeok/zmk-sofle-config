@@ -59,8 +59,8 @@ layers:
   - {t: ⏎, h: FUN}
   - {t: '$$mdi:backspace-outline$$', h: SYM}
   - {t: ⌦, h: MED}
-  - $$mdi:apple-keyboard-option$$
-  - $$mdi:apple-keyboard-command$$
+  - RIGHT ALT
+  - RIGHT GUI
   NAV:
   - BT CLR
   - BT 1
@@ -89,7 +89,7 @@ layers:
   - {type: held}
   - $$mdi:apple-keyboard-control$$
   - $$mdi:apple-keyboard-command$$
-  - $$mdi:apple-keyboard-option$$
+  - LEFT ALT
   - LEFT SHIFT
   - {t: ▽, type: trans}
   - ←
@@ -393,7 +393,7 @@ layers:
   - {t: ▽, type: trans}
   - {t: ▽, type: trans}
   - $$mdi:apple-keyboard-control$$
-  - LEFT WIN
+  - $$mdi:apple-keyboard-command$$
   - LEFT ALT
   - LEFT SHIFT
   - {t: ▽, type: trans}
