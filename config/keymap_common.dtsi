@@ -22,13 +22,13 @@
 #define ___      &trans
 #define XXX      &none
 
-/* 홈로우 모드 (탭 = 글자, 홀드 = modifier / 레이어) */
+/* 홈로우 모드 (탭 = 글자, 홀드 = modifier / 레이어). HM = hmr*, HS = hms* (Shift 전용) */
 #define HM_ESC   &hmr_mo 1 ESC            /* Esc  / NAV */
 #define HM_A     &hmr_l LCTRL A           /* A    / Ctrl */
 #define HM_S     &hmr_l LEFT_WIN S        /* S    / Gui */
 #define HM_D     &hmr_l LEFT_ALT D        /* D    / Alt */
-#define HM_F     &hms_l LEFT_SHIFT F      /* F    / Shift */
-#define HM_J     &hms_r LEFT_SHIFT J      /* J    / Shift */
+#define HS_F     &hms_l LEFT_SHIFT F      /* F    / Shift */
+#define HS_J     &hms_r LEFT_SHIFT J      /* J    / Shift */
 #define HM_K     &hmr_r LEFT_ALT K        /* K    / Alt */
 #define HM_L     &hmr_r LEFT_GUI L        /* L    / Gui */
 #define HM_SCLN  &hmr_r LEFT_CONTROL SEMI /* ;    / Ctrl */
@@ -196,7 +196,7 @@
  */
 #define BAS \
     &kp TAB  &kp Q  &kp W  &kp E   &kp R   &kp T   ,  &kp Y   &kp U    &kp I      &kp O    &kp P     &kp BSLH   , \
-    HM_ESC   HM_A   HM_S   HM_D    HM_F    &kp G   ,  &kp H   HM_J     HM_K       HM_L     HM_SCLN   &kp SQT    , \
+    HM_ESC   HM_A   HM_S   HM_D    HS_F    &kp G   ,  &kp H   HS_J     HM_K       HM_L     HM_SCLN   &kp SQT    , \
     L_SFT    &kp Z  &kp X  &kp C   &kp V   &kp B   ,  &kp N   &kp M    &kp COMMA  &kp DOT  &kp FSLH  &kp GRAVE  , \
                            LT_ESC  LT_TAB  LT_SPC  ,  LT_RET  LT_BSPC  LT_DEL
 
