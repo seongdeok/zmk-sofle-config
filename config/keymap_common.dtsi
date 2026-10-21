@@ -214,7 +214,7 @@
 #define NAV \
     ___  ___    ___    ___    ___    ___  ,  ___       ___            ___          ___        ___  ___  , \
     ___  L_CTL  L_GUI  L_ALT  L_SFT  ___  ,  &kp LEFT  &kp DOWN       &kp UP       &kp RIGHT  ___  ___  , \
-    ___  A_Z    ___    A_C    A_V    ___  ,  &kp HOME  &kp PAGE_DOWN  &kp PAGE_UP  &kp END    ___  ___  , \
+    &bootloader  ___    A_C    A_V    ___  ,  &kp HOME  &kp PAGE_DOWN  &kp PAGE_UP  &kp END    ___  ___  , \
                        ___    ___    ___  ,  ___       ___            ___
 
 /* SYM
@@ -282,7 +282,7 @@
 #define FUN \
     ___  &kp F1   &kp F2   &kp F3  &kp F4  &kp F5  ,  &kp F6  &kp F7  &kp F8  &kp F9  &kp F10  ___  , \
     ___  &kp F11  &kp F12  ___     ___     ___     ,  ___     R_SFT   R_ALT   R_GUI   R_CTL    ___  , \
-    ___  ___      ___      ___     ___     ___     ,  ___     ___     ___     ___     ___      ___  , \
+    ___  ___      ___      ___     ___     ___     ,  ___     ___     ___     ___     ___      &bootloader  , \
                            ___     ___     ___     ,  ___     ___     ___
 
 /* MED
